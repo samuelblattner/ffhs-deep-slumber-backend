@@ -11,16 +11,16 @@
         path: "{{ remote_basedir }}"
         state: directory
 
-    - name: Create Generated Dir
-      file:
-        path: "{{ remote_basedir }}/generated"
-        state: directory
-
     - name: Git pull
       git:
         repo: ssh://git@alphacentauri-samworks.synology.me:30001/samworks/ffhs-deep-slumber-backend.git
         dest: "{{ remote_basedir }}"
         version: "production"
+
+    - name: Create Generated Dir
+      file:
+        path: "{{ remote_basedir }}/generated"
+        state: directory
 
     - name: Install Composer
       command: chdir={{ remote_basedir }} source ./scripts/install-composer.sh
