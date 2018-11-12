@@ -3,31 +3,30 @@
   remote_user: developer
 
   vars:
-    remote_basedir: /home/developer/sites/samworks-ffhs-deep-slumber-live/backend
+    remote_basedir: "/home/developer/sites/samworks-ffhs-deep-slumber-live/backend/"
+    project_id: samworks-ffhs-deep-slumber-live
 
   tasks:
-    - name: Create Base Dir
-      file:
-        path: "{{ remote_basedir }}"
-        state: directory
+  - name: Create Base Dir
+    file:
+      path: "{{ remote_basedir }}"
+      state: directory
 
-    - name: Git pull
-      git:
-        repo: ssh://git@alphacentauri-samworks.synology.me:30001/samworks/ffhs-deep-slumber-backend.git
-        dest: "{{ remote_basedir }}"
-        version: "production"
+  - name: Git pull
+    git:
+      repo: ssh://git@alphacentauri-samworks.synology.me:30001/samworks/ffhs-deep-slumber-backend.git
+      dest: "{{ remote_basedir }}"
+      version: "production"
 
-    - name: Create Generated Dir
-      file:
-        path: "{{ remote_basedir }}/generated"
-        state: directory
+  - name: Create Generated Dir
+    file:
+      path: "{{ remote_basedir }}/generated"
+      state: directory
 
-    - name: Install Composer
-      shell: ". ./scripts/install-composer.sh"
-      args:
-        chdir: "{{ remote_basedir }}"
+  - name: Install Composer
+    shell: ". ./scripts/install-composer.sh"
+    args:
+      chdir: "{{ remote_basedir }}"
 
-    - name: Install Dependencies
-      composer:
-        command: install
-        working_dir: "{{ remote_basedir }}"
+  - name: Install Dependencies
+    command: chdir={{ remote_basedir }} php composer.phar install
