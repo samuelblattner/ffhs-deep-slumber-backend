@@ -30,3 +30,9 @@
 
   - name: Install Dependencies
     command: chdir={{ remote_basedir }} php composer.phar install
+
+  - name: Create Database if not exists
+    command: chdir={{ remote_basedir }} ./vendor/bin/propel sql:build && ./vendor/bin/propel sql:insert
+
+  - name: Execute Database mirations
+    command: chdir={{ remote_basedir }} ./vendor/bin/propel migrate

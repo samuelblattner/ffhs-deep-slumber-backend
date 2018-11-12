@@ -1,0 +1,81 @@
+---
+- hosts: production
+  remote_user: root
+
+  vars:
+    remote_basedir: "/home/developer/sites/samworks-ffhs-deep-slumber-live/backend"
+    project_id: samworks-ffhs-deep-slumber-live
+
+  tasks:
+  - name: Create user developer
+    user:
+      name: developer
+      shell: /bin/bash
+
+  - name: Create project dir
+    file:
+      path: "{{ remote_basedir }}/envs"
+      state: directory
+
+  - name: Install PostgreSQL
+    apt:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - postgresql
+        - postgresql-client
+        - postgresql-client-common
+        - postgresql-contrib
+        - libpq5
+        - php-pgsql
+
+  - name: Load pip
+    get_url:
+      url: https://bootstrap.pypa.io/get-pip.py
+      dest: get-pip.py
+
+  - name: Install pip
+    command: python get-pip.py
+
+  - name: Install Psycopg2
+    pip:
+      name: psycopg2
+
+  - name: Create Database User
+    become: yes
+    become_user: postgres
+    command: psql -c "CREATE ROLE samworks_ffhs_deepslumber_backend"
+    ignore_errors: yes
+
+  - name: Create Database User Password
+    shell: openssl rand -base64 32 > {{ remote_basedir }}/envs/DATABASE_PW
+
+  - name: Set Database User Password
+    become: yes
+    become_user: postgres
+    command: psql -c "ALTER USER samworks_ffhs_deepslumber_backend WITH PASSWORD '$(cat {{ remote_basedir }}/envs/DATABASE_PW)'";
+
+  - name: Create Database
+    become: yes
+    become_user: postgres
+    postgresql_db:
+      name: samworks_ffhs_deepslumber_backend
+      owner: samworks_ffhs_deepslumber_backend
+
+  - name: Load password
+    slurp:
+      src: "{{ remote_basedir }}/envs/DATABASE_PW"
+    register: database_pw
+
+  - name: Create Propel config
+    template:
+      src: propel.yml
+      dest: "{{ remote_basedir }}/propel.yml"
+      owner: developer
+      mode: 0600
+
+  - name: Update Postgres Config
+    replace:
+      path: "{{ remote_basedir }}/propel.yml"
+      regexp: 'password:\s.*$'
+      replace: "password: {{ database_pw.content | b64decode }}"

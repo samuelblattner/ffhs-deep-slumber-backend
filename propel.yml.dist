@@ -1,0 +1,10 @@
+propel:
+    database:
+        connections:
+            default:
+                adapter: pgsql
+                dsn: pgsql:host=localhost;port=5432;dbname=samworks_ffhs_deepslumber_backend
+                user: samworks_ffhs_deepslumber_backend
+                password: thepassword
+                settings:
+                    charset: utf8

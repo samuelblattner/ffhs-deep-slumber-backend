@@ -90,3 +90,7 @@ composer.phar
 .idea/workspace.xml
 
 generated/
+./propel.yml
+*.retry
+
+generated-sql
