@@ -44,16 +44,21 @@
   - name: Create Database User
     become: yes
     become_user: postgres
-    command: psql -c "CREATE ROLE samworks_ffhs_deepslumber_backend"
+    command: psql -c "CREATE USER samworks_ffhs_deepslumber_backend"
     ignore_errors: yes
 
   - name: Create Database User Password
     shell: openssl rand -base64 32 > {{ remote_basedir }}/envs/DATABASE_PW
 
+  - name: Load password
+    slurp:
+      src: "{{ remote_basedir }}/envs/DATABASE_PW"
+    register: database_pw
+
   - name: Set Database User Password
     become: yes
     become_user: postgres
-    command: psql -c "ALTER USER samworks_ffhs_deepslumber_backend WITH PASSWORD '$(cat {{ remote_basedir }}/envs/DATABASE_PW)'";
+    command: psql -c "ALTER USER samworks_ffhs_deepslumber_backend WITH PASSWORD '{{ database_pw.content | b64decode }}'";
 
   - name: Create Database
     become: yes
@@ -61,11 +66,6 @@
     postgresql_db:
       name: samworks_ffhs_deepslumber_backend
       owner: samworks_ffhs_deepslumber_backend
-
-  - name: Load password
-    slurp:
-      src: "{{ remote_basedir }}/envs/DATABASE_PW"
-    register: database_pw
 
   - name: Create Propel config
     template:

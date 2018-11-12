@@ -1,4 +1,7 @@
 propel:
+    paths:
+        schemaDir: /home/developer/sites/samworks-ffhs-deep-slumber-live/backend/config/database
+        phpDir: /home/developer/sites/samworks-ffhs-deep-slumber-live/backend/generated
     database:
         connections:
             default:
