@@ -1,0 +1,37 @@
+image: samuelblattner/ubuntu-18.04-nginx-php-postgres-ansible
+
+stages:
+  - Test
+  - Deploy
+
+before_script:
+  - mkdir -p backend/generated
+  - cd backend && source ./scripts/install-composer.sh
+  - php composer.phar install
+
+PHPUnit Tests:
+  stage: Test
+  only:
+    - master
+
+  script:
+    - ./vendor/bin/phpunit modules
+
+Deploy Backend to Production:
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_DEPLOY_KEY_PRODUCTION" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS_PRODUCTION" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ls ~/.ssh/
+
+  stage: Deploy
+  script:
+    - ansible-playbook -i ./backend/.ansible/hosts ./backend/.ansible/deploy-backend-live.yml
+  environment:
+    name: production
+  only:
+    - master
