@@ -23,7 +23,7 @@
         state: directory
 
     - name: Install Composer
-      shell: "source ./scripts/install-composer.sh"
+      shell: ". ./scripts/install-composer.sh"
       args:
         chdir: "{{ remote_basedir }}"
 
