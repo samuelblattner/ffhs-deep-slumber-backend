@@ -13,7 +13,7 @@
 
     - name: Create Generated Dir
       file:
-        path: "{{ remote_basedir }}"/generated
+        path: "{{ remote_basedir }}/generated"
         state: directory
 
     - name: Git pull
