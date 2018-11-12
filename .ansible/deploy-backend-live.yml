@@ -1,0 +1,32 @@
+---
+- hosts: production
+  remote_user: developer
+
+  vars:
+    remote_basedir: /home/developer/sites/samworks-ffhs-deep-slumber-live
+    project_id: samworks-ffhs-deep-slumber-live
+
+  tasks:
+    - name: Create Base Dir
+      file:
+        path: "{{ remote_basedir }}"
+        state: directory
+
+    - name: Create Generated Dir
+      file:
+        path: "{{ remote_basedir }}"/backend/generated
+        state: directory
+
+    - name: Git pull
+      git:
+        repo: ssh://git@alphacentauri-samworks.synology.me:30001/samworks/ffhs-webe-hh.git
+        dest: "{{ remote_basedir }}"
+        version: "backend-production"
+
+    - name: Install Composer
+      command: chdir={{ remote_basedir }}/backend source ./scripts/install-composer.sh
+
+    - name: Install Dependencies
+      composer:
+        command: install
+        working_dir: {{ remote_basedir }}/backend

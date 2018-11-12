@@ -1,0 +1,88 @@
+<!--
+    Awesome, your propel set up is nearly done! You just have to describe how you want your database to look like.
+
+    You can let propel set up your pgsql database by running `vendor/bin/propel database:create && vendor/bin/propel database:insert-sql`.
+    This will create your database including all the tables.
+-->
+
+<!--
+    The root tag of the XML schema is the <database> tag.
+
+    The `name` attribute defines the name of the connection that Propel uses for the tables in this schema. It is not
+    necessarily the name of the actual database. In fact, Propel uses some configuration properties to link a connection
+    name with real connection settings (like database name, user and password).
+
+    The `defaultIdMethod` attribute indicates that the tables in this schema use the database's "native"
+    auto-increment/sequence features to handle id columns that are set to auto-increment.
+
+   [TIP]: You can define several schemas for a single project. Just make sure that each of the schema
+          filenames end with schema.xml.
+-->
+<database name="default" defaultIdMethod="native"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd"
+          namespace="">
+
+    <table name="abstract_citizen" phpName="AbstractCitizen">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    </table>
+
+    <table name="permission" phpName="Permission">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="key" type="varchar"  size="64" required="true" autoIncrement="true" />
+        <column name="label" type="varchar" size="128" required="true" />
+        <unique>
+            <unique-column name="key" />
+        </unique>
+    </table>
+
+    <table name="group" phpName="Group">
+        <column name="name" type="varchar" size="64" required="false" phpName="name"/>
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="abstract_citizen" />
+        </behavior>
+    </table>
+
+    <table name="account" phpName="User">
+        <column name="username" type="varchar" size="64" required="false" phpName="username"/>
+        <column name="first_name" type="varchar" size="64" required="false" phpName="first_name"/>
+        <column name="last_name" type="varchar" size="64" required="false" phpName="last_name"/>
+        <column name="email" type="varchar" size="256" required="false" phpName="email"/>
+        <column name="last_login" type="timestamp" required="false" phpName="last_login"/>
+        <column name="password" type="varchar" required="false" size="256" phpName="password" />
+
+        <unique>
+            <unique-column name="username" />
+        </unique>
+
+        <behavior name="concrete_inheritance">
+            <parameter name="extends" value="abstract_citizen" />
+        </behavior>
+    </table>
+
+    <table name="user_group" isCrossRef="true">
+        <column name="user_id" type="INTEGER" primaryKey="true" />
+        <column name="group_id" type="INTEGER" primaryKey="true" />
+
+        <foreign-key foreignTable="account">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="group">
+            <reference local="group_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="permission_citizen" isCrossRef="true">
+        <column name="permission_id" type="INTEGER" primaryKey="true" />
+        <column name="citizen_id" type="INTEGER" primaryKey="true" />
+
+        <foreign-key foreignTable="permission">
+            <reference local="permission_id" foreign="id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="abstract_citizen">
+            <reference local="citizen_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+</database>

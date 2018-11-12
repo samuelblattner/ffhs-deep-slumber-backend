@@ -1,0 +1,6 @@
+[local]
+localhost
+
+[production]
+deep-slumber.samuelblattner.ch
+
