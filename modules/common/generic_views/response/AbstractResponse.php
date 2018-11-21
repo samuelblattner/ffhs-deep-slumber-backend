@@ -8,7 +8,7 @@ abstract class AbstractResponse {
 	protected $header;
 	protected $data;
 
-	public function __construct( ?int $status, ?array $data ) {
+	public function __construct( ?int $status, $data ) {
 		$this->header = new ResponseHeader();
 		$this->header->status = $status;
 		$this->data = $data;

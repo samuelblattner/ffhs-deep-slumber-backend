@@ -2,7 +2,8 @@
 
 include __DIR__.'/../router/Router.php';
 include __DIR__.'/../common/value_objects/request.php';
-
+global $SETTINGS;
+include $SETTINGS['main-routes-file'];
 
 class Server {
 
@@ -26,18 +27,18 @@ class Server {
 	 */
 	public function handleRequest() {
 
+		global $SETTINGS;
+
+
 		$r = new Router();
 		$view = $r->getViewForUrl($_SERVER['REQUEST_URI']);
 
 		if ($view === null) {
-
-			if (file_exists(__DIR__.'/../../../frontend/index.html')) {
-				require_once __DIR__.'/../../../frontend/index.html';
-			} else {
-				echo 'No frontend found!';
-			}
-		} else {
+			$view = new NotFoundView();
+			$_SERVER['REQUEST_METHOD'] = 'GET';
+		}
 			$response = null;
+
 
 			switch($_SERVER['REQUEST_METHOD']) {
 				case 'POST': {
@@ -55,6 +56,6 @@ class Server {
 
 			$response->writeHttpResponseHeader();
 			echo $response->renderResponse();
-		}
+
 	}
 }

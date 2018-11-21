@@ -18,6 +18,10 @@ abstract class GenericResponse extends AbstractResponse {
 	}
 }
 
+class NotFoundResponse extends  GenericResponse {
+	protected $STATUS_CODE = 404;
+}
+
 
 class UnauthorizedResponse extends GenericResponse {
 	protected $STATUS_CODE = 401;

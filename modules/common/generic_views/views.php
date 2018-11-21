@@ -1,6 +1,7 @@
 <?php
 
 include_once __DIR__.'/abstract.php';
+include_once __DIR__.'/response/RawFileResponse.php';
 
 
 abstract class ListAPIView extends AbstractModelAPIView {
@@ -38,4 +39,39 @@ abstract class UpdateAPIView extends AbstractModelAPIView {
 
 abstract class DeleteAPIView extends AbstractModelAPIView {
 
+}
+
+
+class NotFoundView extends  AbstractAPIView {
+	public function get(Request $request): AbstractResponse {
+		return new NotFoundResponse();
+	}
+}
+
+class RawFileView extends  AbstractAPIView {
+
+	private $filePath;
+	private $contentType;
+
+	public function __construct($filePath, $contentType) {
+		parent::__construct();
+		$this->filePath = $filePath;
+		$this->contentType = $contentType;
+	}
+
+	public function get( Request $request ): AbstractResponse {
+		return new RawFileResponse(200, file_get_contents($this->filePath), $this->contentType);
+	}
+}
+
+class FrontendView extends AbstractAPIView {
+	public function get( Request $request): AbstractResponse {
+		global $SETTINGS;
+
+		if (file_exists($SETTINGS['frontend-entry-path'])) {
+			return new RawFileResponse(200, file_get_contents($SETTINGS['frontend-entry-path']), 'text/html');
+		} else {
+			return new NotFoundResponse();
+		}
+	}
 }

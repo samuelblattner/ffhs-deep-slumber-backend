@@ -12,7 +12,7 @@ class UserResult extends AbstractResult {
 		$this->user = $user;
 	}
 
-	public function getUser(): User {
+	public function getUser(): ?User {
 		return $this->user;
 	}
 }
