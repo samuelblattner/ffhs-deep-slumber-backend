@@ -55,11 +55,11 @@ Executor::getInstance()->registerCommand(
 
 		public function execute(?ifcontext $context): AbstractResult {
 
+			echo 'jup';
 			session_destroy();
 
 			return new OperationResult(
 				ResultState::EXECUTED,
-				null,
 				null
 			);
 		}
@@ -80,7 +80,11 @@ Executor::getInstance()->registerCommand(
 			$guard = new Guard();
 			$guard->setPassword($user, $context->getValue('password'));
 
-			return new OperationResult();
+			return new DeviceResult(
+				ResultState::EXECUTED,
+				null,
+				$user
+			);
 		}
 	}
 );

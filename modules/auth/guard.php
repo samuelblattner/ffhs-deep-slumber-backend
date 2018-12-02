@@ -2,10 +2,19 @@
 
 class Guard {
 
+	/**
+	 * Main Authentication Method.
+	 * Returns a User-Object if successful, null if not.
+	 * @param string $username
+	 * @param string $password
+	 *
+	 * @return null|User
+	 */
 	public function authenticate(string $username, string $password): ?User {
 
 		$user = UserQuery::create()->findOneByusername($username);
-		if (password_verify($password, $user->getpassword())) {
+
+		if ($user && password_verify($password, $user->getpassword())) {
 			return $user;
 		}
 		return null;

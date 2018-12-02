@@ -32,5 +32,5 @@ abstract class AbstractAPIView {
 abstract class AbstractModelAPIView extends AbstractAPIView {
 
 	protected abstract function getCommandKey(): string;
-	protected abstract function getSerializer(): AbstractSerializer;
+	protected abstract function getSerializer();
 }

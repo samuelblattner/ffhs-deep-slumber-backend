@@ -85,4 +85,14 @@
         </foreign-key>
     </table>
 
+    <table name="device">
+        <column name="hwid" type="varchar" size="32" primaryKey="true" />
+        <column name="user_id" type="integer" required="false" />
+        <column name="last_heartbeat" type="timestamp" required="false" />
+
+        <foreign-key foreignTable="account">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+    </table>
+
 </database>

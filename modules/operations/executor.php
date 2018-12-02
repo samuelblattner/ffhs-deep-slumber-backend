@@ -46,6 +46,7 @@ class Executor {
 	public function execute(string $key, ?ExecutionContext $context): AbstractResult {
 
 		if (!array_key_exists($key, $this->commands)) {
+			echo $key;
 			return new OperationResult(
 				ResultState::RUNTIME_ERROR,
 				'Command "'.$key.'"" not registered!'

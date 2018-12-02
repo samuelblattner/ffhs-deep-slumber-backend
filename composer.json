@@ -19,6 +19,7 @@
   "autoload": {
     "classmap": ["generated/", "modules/missioncontrol"],
     "psr-4": {
+      "Base\\": "generated/",
       "MissionControl\\": "modules/missioncontrol"
     }
   }

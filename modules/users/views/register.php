@@ -17,7 +17,7 @@ class RegisterView extends AbstractAPIView {
 		$ctx = new ExecutionContext();
 		$ctx->setValue('username', $username);
 		$ctx->setValue('password', $password);
-		$result = Executor::getInstance()->execute($CMD_REGISTER_USER, $ctx);
+		return Executor::getInstance()->execute($CMD_REGISTER_USER, $ctx);
 	}
 
 	public function get( Request $request ): AbstractResponse {
@@ -27,7 +27,8 @@ class RegisterView extends AbstractAPIView {
 	public function post(Request $request): AbstractResponse {
 
 		$serializer = new LoginSerializer($request->postData);
-		$this->__registerUser($serializer->getUserName(), $serializer->getPassword());
-		return new JSONResponse(201);
+		$result = $this->__registerUser($serializer->getUserName(), $serializer->getPassword());
+		$userSerializer = new UserSerializer(null, $result->getUser());
+		return new JSONResponse(201, $userSerializer->serialize());
 	}
 }

@@ -27,9 +27,13 @@ class LoginView extends AbstractAPIView {
 	public function post(Request $request): AbstractResponse {
 		$serializer = new LoginSerializer($request->postData);
 		if (!$serializer->is_valid()) {
-
+			return new BadRequestResponse();
 		}
 		$result = $this->attemptLogin($serializer->getUserName(), $serializer->getPassword());
+
+		if ($result->getResultMeta()->getState() == ResultState::OPERATION_ERROR) {
+			return new UnauthorizedResponse(401, $result->getResultMeta()->getMessage());
+		}
 		$userSerializer = new UserSerializer(null, $result->getUser());
 		return new JSONResponse(200, $userSerializer->serialize());
 	}

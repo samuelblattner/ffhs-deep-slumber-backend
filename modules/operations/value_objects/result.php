@@ -41,6 +41,10 @@ abstract class AbstractResult {
 	public function getResultMeta(): ResultMeta {
 		return $this->resultMeta;
 	}
+
+	public function getResultObject() {
+		return null;
+	}
 }
 
 
