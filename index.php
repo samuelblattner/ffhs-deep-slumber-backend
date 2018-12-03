@@ -7,4 +7,4 @@ include __DIR__.'/modules/server/Server.php';
 
 
 $s = new Server();
-$s->handleRequest()->body;
+$s->handleRequest();

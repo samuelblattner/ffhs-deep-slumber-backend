@@ -7,7 +7,7 @@ include_once __DIR__ . '/../../users/commands/commands.php';
 include_once __DIR__ . '/../../operations/executor.php';
 include_once __DIR__ . '/../serializers/LoginSerializer.php';
 include_once __DIR__ . '/../../common/generic_views/response/JSONResponse.php';
-include_once __DIR__ . '/../serializers/UserNameSerializer.php';
+include_once __DIR__ . '/../serializers/UsernameSerializer.php';
 
 
 class CheckUserNameView extends AbstractAPIView {

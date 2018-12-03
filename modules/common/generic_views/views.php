@@ -88,10 +88,9 @@ class FrontendView extends AbstractAPIView {
 		$user = $guard->getSessionUser();
 		$serializer = new UserSerializer(null, $user);
 
+		$ctx = array();
 		if($user != null) {
-			$ctx = array(
-				'user' => $serializer->serialize()
-			);
+			$ctx['user'] = $serializer->serialize();
 		}
 		return $this->__renderJSContext($ctx);
 	}

@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__.'/../../common/serializers/serializer.php';
+include_once __DIR__.'/../../common/serializers/serializer.php';
 
 
 class LoginSerializer extends AbstractSerializer {

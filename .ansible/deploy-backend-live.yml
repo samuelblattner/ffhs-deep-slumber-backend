@@ -31,6 +31,12 @@
   - name: Install Dependencies
     command: chdir={{ remote_basedir }} php composer.phar install
 
+  - name: Generate autoload
+    command: chdir={{ remote_basedir }} php composer.phar dump-autoload
+
+  - name: Update Propel config
+    command: chdir={{ remote_basedir }} ./vendor/bin/propel config:convert
+
   - name: Create Database Schema
     command: chdir={{ remote_basedir }} ./vendor/bin/propel sql:build
 
