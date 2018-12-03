@@ -90,6 +90,7 @@ composer.phar
 .idea/workspace.xml
 
 generated/
+generated-conf/
 propel.yml
 *.retry
 
