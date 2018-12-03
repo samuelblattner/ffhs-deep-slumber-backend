@@ -80,7 +80,7 @@ Executor::getInstance()->registerCommand(
 			$guard = new Guard();
 			$guard->setPassword($user, $context->getValue('password'));
 
-			return new DeviceResult(
+			return new UserResult(
 				ResultState::EXECUTED,
 				null,
 				$user
