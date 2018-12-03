@@ -29,8 +29,8 @@
 
     <table name="permission" phpName="Permission">
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
-        <column name="key" type="varchar"  size="64" required="true" autoIncrement="true" />
-        <column name="label" type="varchar" size="128" required="true" />
+        <column name="key" type="varchar"  size="64" required="true" />
+        <column name="label" type="varchar" size="128" required="false" />
         <unique>
             <unique-column name="key" />
         </unique>

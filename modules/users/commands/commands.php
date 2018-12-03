@@ -1,5 +1,19 @@
 <?php
 
+global $CMD_LISTS_USERS;
+$CMD_LISTS_USERS = 'list-all-users';
+
+global $CMD_LIST_USER_PERMISSIONS;
+$CMD_LIST_USER_PERMISSIONS = 'list-all-user-permissions';
+
+global $CMD_LIST_USER_DEVICES;
+$CMD_LIST_USER_DEVICES = 'list-user-devices';
+
+global $CMD_ADD_DEVICE;
+$CMD_ADD_DEVICE = 'add-device';
+
+global $CMD_TOGGLE_USER_PERMISSION;
+$CMD_TOGGLE_USER_PERMISSION = 'toggle-user-permission';
 
 global $CMD_UPDATE_USER;
 $CMD_UPDATE_USER = 'update-user';

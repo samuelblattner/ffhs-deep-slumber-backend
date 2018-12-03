@@ -29,6 +29,11 @@ class UnauthorizedResponse extends GenericResponse {
 	protected $STATUS_CODE = 401;
 }
 
+
+class ServerErrorResponse extends GenericResponse {
+	protected $STATUS_CODE = 500;
+}
+
 class BadRequestResponse extends GenericResponse {
 	protected $STATUS_CODE = 400;
 }

@@ -8,11 +8,15 @@ include_once __DIR__ . '/../../operations/executor.php';
 include_once __DIR__ . '/../../../generated/UserQuery.php';
 include_once __DIR__ . '/../../auth/guard.php';
 include_once __DIR__ . '/../../auth/commands/results/UserResult.php';
+include_once __DIR__ . '/../../auth/commands/results/PermissionResult.php';
 
 global $CMD_UPDATE_USER;
 global $CMD_REGISTER_USER;
 global $CMD_DELETE_USER;
 global $CMD_CHECK_USERNAME_EXISTS;
+global $CMD_LIST_USER_PERMISSIONS;
+global $CMD_TOGGLE_USER_PERMISSION;
+global $CMD_ADD_DEVICE;
 
 
 Executor::getInstance()->registerCommand(
@@ -37,35 +41,10 @@ Executor::getInstance()->registerCommand(
 				);
 			}
 
-			return new DeviceResult(
+			return new UserResult(
 				ResultState::EXECUTED,
 				null,
-				$user
-			);
-		}
-	}
-);
-
-
-Executor::getInstance()->registerCommand(
-	$CMD_REGISTER_USER,
-	new class extends AbstractCommand {
-		protected static $minPermissions = array();
-
-		public function execute( ?ifcontext $context ): AbstractResult {
-
-			echo 'hurrli';
-			$user = new User();
-			$user->setusername( $context->getValue( 'username' ) );
-			$user->save();
-			$guard = new Guard();
-			$guard->setPassword( $user, $context->getValue( 'password' ) );
-
-				echo 'jup';
-			return new DeviceResult(
-				ResultState::EXECUTED,
-				null,
-				$user
+				$user->getArrayCopy()
 			);
 		}
 	}
@@ -80,7 +59,6 @@ Executor::getInstance()->registerCommand(
 		public function execute( ?ifcontext $context ): AbstractResult {
 
 			$user = UserQuery::create()->findOneByusername($context->getValue( 'username' ));
-			echo $user;
 			if ($user == null) {
 				return new OperationResult(
 					ResultState::OPERATION_ERROR,
@@ -93,3 +71,147 @@ Executor::getInstance()->registerCommand(
 		}
 	}
 );
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_LISTS_USERS,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-list-all-users'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$users = UserQuery::create()->find()->getArrayCopy();
+
+			return new UserResult(
+				ResultState::EXECUTED,
+				null,
+				$users
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_LIST_USER_PERMISSIONS,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-list-all-users-permissions'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$allPermissions = PermissionQuery::create()->find()->getArrayCopy();
+			$userPermissionKeys = UserQuery::create()->findOneById(
+				$context->getValue('forUser')
+			)->getPermissions()->getColumnValues('key');
+
+			foreach($allPermissions as $permission) {
+				if (in_array($permission->getKey(), $userPermissionKeys)) {
+					$permission->active = true;
+				}
+			}
+
+			return new PermissionResult(
+				ResultState::EXECUTED,
+				null,
+				$allPermissions
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_TOGGLE_USER_PERMISSION,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-edit-all-users-permissions'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$permission = PermissionQuery::create()->findOneById($context->getValue('permissionId'));
+			$user = UserQuery::create()->findOneById($context->getValue('forUser'));
+			if ($context->getValue('toggle')) {
+				$user->addPermission($permission);
+			} else {
+				$user->removePermission($permission);
+
+			}
+			$user->save();
+			$permission->save();
+
+			return new OperationResult(
+				ResultState::EXECUTED,
+				null
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_ADD_DEVICE,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-add-device-to-own-user'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$device = DeviceQuery::create()->findOneByHwid($context->getValue('deviceId'));
+
+			if ($device == null) {
+				return new OperationResult(
+					ResultState::OPERATION_ERROR,
+					'No such device'
+				);
+			}
+
+			if ($device->getUser() != null) {
+				return new OperationResult(
+					ResultState::OPERATION_ERROR,
+					'This device is already in use!'
+				);
+			}
+
+			$user = UserQuery::create()->findOneById($context->getValue('forUser'));
+			$user->addDevice($device);
+			$user->save();
+			$device->save();
+
+			return new DeviceResult(
+				ResultState::EXECUTED,
+				null,
+				array($device)
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_LIST_USER_DEVICES,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-list-own-devices'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$user = $context->getRequester();
+
+			$devices = $user->getDevices()->getArrayCopy();
+
+			return new DeviceResult(
+				ResultState::EXECUTED,
+				null,
+				$devices
+			);
+		}
+	}
+);
+

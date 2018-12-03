@@ -27,6 +27,16 @@ abstract class AbstractAPIView {
 		return new MethodNotAllowedResponse();
 	}
 
+	public function getRequestData($request): array {
+		return $request->postData;
+	}
+
+	public function getExecutionContext($request): ExecutionContext {
+		$guard = new Guard();
+		$ctx = new ExecutionContext($guard->getSessionUser());
+		return $ctx;
+	}
+
 }
 
 abstract class AbstractModelAPIView extends AbstractAPIView {

@@ -41,7 +41,7 @@ Executor::getInstance()->registerCommand(
 			return new UserResult(
 				ResultState::EXECUTED,
 				null,
-				$user
+				array($user)
 			);
 		}
 	}
@@ -55,7 +55,6 @@ Executor::getInstance()->registerCommand(
 
 		public function execute(?ifcontext $context): AbstractResult {
 
-			echo 'jup';
 			session_destroy();
 
 			return new OperationResult(
@@ -79,6 +78,9 @@ Executor::getInstance()->registerCommand(
 			$user->save();
 			$guard = new Guard();
 			$guard->setPassword($user, $context->getValue('password'));
+
+			session_start();
+			$_SESSION['user'] = $user;
 
 			return new UserResult(
 				ResultState::EXECUTED,

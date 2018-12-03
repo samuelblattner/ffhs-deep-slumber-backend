@@ -5,14 +5,18 @@ include_once __DIR__ . '/../../../operations/value_objects/result.php';
 
 class UserResult extends AbstractResult {
 
-	private $user;
+	private $users;
 
-	public function __construct($state, $message, ?User $user=null) {
+	public function __construct($state, $message, ?array $users=null) {
 		parent::__construct($state, $message);
-		$this->user = $user;
+		$this->users = $users;
 	}
 
-	public function getUser(): ?User {
-		return $this->user;
+	public function getUsers(): ?array {
+		return $this->users;
+	}
+
+	public function getResultObject() {
+		return $this->users;
 	}
 }

@@ -4,10 +4,10 @@ use Propel\Generator\Manager\MigrationManager;
 
 /**
  * Data object containing the SQL and PHP code to migrate the database
- * up to version 1543758969.
- * Generated on 2018-12-02 13:56:09 by samuelblattner
+ * up to version 1543840080.
+ * Generated on 2018-12-03 12:28:00 by samuelblattner
  */
-class PropelMigration_1543758969
+class PropelMigration_1543840080
 {
     public $comment = '';
 
@@ -40,7 +40,15 @@ class PropelMigration_1543758969
     public function getUpSQL()
     {
         return array (
-  'default' => '',
+  'default' => '
+BEGIN;
+
+ALTER TABLE "permission"
+
+  ALTER COLUMN "label" DROP NOT NULL;
+
+COMMIT;
+',
 );
     }
 
@@ -53,7 +61,15 @@ class PropelMigration_1543758969
     public function getDownSQL()
     {
         return array (
-  'default' => '',
+  'default' => '
+BEGIN;
+
+ALTER TABLE "permission"
+
+  ALTER COLUMN "label" SET NOT NULL;
+
+COMMIT;
+',
 );
     }
 

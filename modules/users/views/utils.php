@@ -26,11 +26,8 @@ class CheckUserNameView extends AbstractAPIView {
 		$result = $this->__checkUserNameExists( $serializer->getUserName() );
 
 		$responseData = array(
-			[
-				'available' => false
-			]
+			'available' => false
 		);
-
 
 		if ( $result->getResultMeta()->getState() == ResultState::OPERATION_ERROR ) {
 			$responseData['available'] = true;

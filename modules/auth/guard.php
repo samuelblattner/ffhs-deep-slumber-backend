@@ -1,5 +1,7 @@
 <?php
 
+use Propel\Runtime\ActiveQuery\Criteria;
+
 class Guard {
 
 	/**
@@ -35,8 +37,20 @@ class Guard {
 
 	}
 
-	public function hasPerms(AbstractCitizen $citizen, $permissions): bool {
+	public function hasPerms(?AbstractCitizen $citizen, $permissions): bool {
+		if ($citizen == null) {
+			return false;
+		}
+		$citizen->clearPermissions();
+		$citizenPermissions = $citizen->getPermissions()->getColumnValues('key');
 
+		foreach ($permissions as $permission) {
+			if (!in_array($permission, $citizenPermissions)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public function addPermissions(AbstractCitizen $citizen, $permissions): bool {

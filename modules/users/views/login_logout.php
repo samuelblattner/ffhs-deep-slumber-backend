@@ -34,7 +34,7 @@ class LoginView extends AbstractAPIView {
 		if ($result->getResultMeta()->getState() == ResultState::OPERATION_ERROR) {
 			return new UnauthorizedResponse(401, $result->getResultMeta()->getMessage());
 		}
-		$userSerializer = new UserSerializer(null, $result->getUser());
+		$userSerializer = new UserSerializer(null, $result->getUsers()[0]);
 		return new JSONResponse(200, $userSerializer->serialize());
 	}
 }

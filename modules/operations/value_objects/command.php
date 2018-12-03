@@ -15,6 +15,10 @@ class ExecutionContext implements ifContext {
 	private $requester;
 	private $values = array();
 
+	public function __construct($requester=null) {
+		$this->requester = $requester;
+	}
+
 	public function getRequester() {
 		return $this->requester;
 	}

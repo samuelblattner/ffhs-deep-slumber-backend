@@ -37,11 +37,5 @@
   - name: Update Propel config
     command: chdir={{ remote_basedir }} ./vendor/bin/propel config:convert
 
-  - name: Create Database Schema
-    command: chdir={{ remote_basedir }} ./vendor/bin/propel sql:build
-
-  - name: Insert Database Schema
-    command: chdir={{ remote_basedir }} ./vendor/bin/propel sql:insert
-
   - name: Execute Database mirations
     command: chdir={{ remote_basedir }} ./vendor/bin/propel migrate
