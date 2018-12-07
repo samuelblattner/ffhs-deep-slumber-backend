@@ -7,5 +7,11 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/samworks_ffhs_deepslumber_backend</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="LIVE" uuid="1ddb8194-dd2d-49ef-be3c-5f3db9b1fc26">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://deep-slumber.samuelblattner.ch:5432/samworks_ffhs_deepslumber_backend</jdbc-url>
+    </data-source>
   </component>
 </project>
