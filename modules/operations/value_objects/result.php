@@ -51,3 +51,18 @@ abstract class AbstractResult {
 class OperationResult extends AbstractResult {
 
 }
+
+
+class BooleanResult extends AbstractResult {
+
+	private $yesno;
+
+	public function __construct( int $state, ?String $message = null, bool $yesno = false) {
+		parent::__construct( $state, $message );
+		$this->yesno = $yesno;
+	}
+
+	public function getResultObject() {
+		return $this->yesno;
+	}
+}

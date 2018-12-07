@@ -5,7 +5,7 @@ include_once __DIR__.'/../value_objects/command.php';
 
 interface ifContext {
 
-	public function getRequester();
+	public function getRequester(): ?AbstractCitizen;
 	public function setValue($key, $value);
 	public function getValue($key);
 }
@@ -19,7 +19,7 @@ class ExecutionContext implements ifContext {
 		$this->requester = $requester;
 	}
 
-	public function getRequester() {
+	public function getRequester(): ?AbstractCitizen {
 		return $this->requester;
 	}
 

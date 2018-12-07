@@ -14,6 +14,7 @@ $ROUTES = [
 	["/^checkusername\/?/", CheckUserNameView::class],
 	["/^user\/$/", ListUsersView::class],
 	["/^user\/(?P<id>\d+)\/update\/$/", UpdateUserView::class],
+	["/^user\/(?P<id>\d+)\/delete\/$/", DeleteUserView::class],
 	["/^user\/(?P<uid>\d+)\/permission\/$/", ListUserPermissionsView::class],
 	["/^user\/(?P<uid>\d+)\/permission\/(?P<id>\d+)\/toggle\/$/", TogglePermissionsView::class],
 	["/^user\/(?P<uid>\d+)\/device\/$/", UserDevicesListView::class],

@@ -17,9 +17,6 @@ abstract class AbstractMessage {
 
 		$obj = json_decode($raw, TRUE);
 
-		echo $obj['hwid'];
-		echo 'gugu';
-
 		foreach ($this::$_fields as $field) {
 			if ($obj[$field]) {
 				$this->{$field} = $obj[$field];

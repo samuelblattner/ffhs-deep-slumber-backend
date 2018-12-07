@@ -11,12 +11,47 @@ include_once __DIR__ . '/../../auth/commands/results/UserResult.php';
 include_once __DIR__ . '/../../auth/commands/results/PermissionResult.php';
 
 global $CMD_UPDATE_USER;
+global $CMD_DELETE_USE;
 global $CMD_REGISTER_USER;
 global $CMD_DELETE_USER;
 global $CMD_CHECK_USERNAME_EXISTS;
 global $CMD_LIST_USER_PERMISSIONS;
 global $CMD_TOGGLE_USER_PERMISSION;
 global $CMD_ADD_DEVICE;
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_DELETE_USER,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-delete-same-user',
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$requester  = $context->getRequester();
+			$userId = $context->getValue( 'id' );
+
+			if ( $userId === $requester->getId() ) {
+				$user = UserQuery::create()->findOneById( $userId );
+				$guard = new Guard();
+				$guard->logout($user);
+				$user->delete();
+			} else {
+				return new OperationResult(
+					ResultState::INSUFFICIENT_PERMISSIONS,
+					null
+				);
+			}
+
+			return new UserResult(
+				ResultState::EXECUTED,
+				null,
+				null
+			);
+		}
+	}
+);
 
 
 Executor::getInstance()->registerCommand(
@@ -29,11 +64,12 @@ Executor::getInstance()->registerCommand(
 		public function execute( ?ifcontext $context ): AbstractResult {
 
 			$requester  = $context->getRequester();
-			$serializer = $context->getValue( 'serializer' );
+			$userId = $context->getValue( 'id' );
+			$userSerializer = $context->getValue('serializer');
 
-			if ( $serializer->getId() === $requester->getId() ) {
-				$user = UserQuery::create()->findOneById( $serializer->getId() );
-				$user->setfirst_name();
+			if ($userId === $requester->getId() ) {
+				$userSerializer->update();
+
 			} else {
 				return new OperationResult(
 					ResultState::INSUFFICIENT_PERMISSIONS,
@@ -44,7 +80,7 @@ Executor::getInstance()->registerCommand(
 			return new UserResult(
 				ResultState::EXECUTED,
 				null,
-				$user->getArrayCopy()
+				array($userSerializer->getInstance())
 			);
 		}
 	}

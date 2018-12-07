@@ -28,7 +28,7 @@ class RegisterView extends AbstractAPIView {
 
 		$serializer = new LoginSerializer($request->postData);
 		$result = $this->__registerUser($serializer->getUserName(), $serializer->getPassword());
-		$userSerializer = new UserSerializer(null, $result->getUser());
+		$userSerializer = new UserSerializer(null, $result->getUsers()[0]);
 		return new JSONResponse(201, $userSerializer->serialize());
 	}
 }

@@ -55,7 +55,10 @@ Executor::getInstance()->registerCommand(
 
 		public function execute(?ifcontext $context): AbstractResult {
 
-			session_destroy();
+
+			$guard = new Guard();
+			$user = $guard->getSessionUser();
+			$guard->logout($user);
 
 			return new OperationResult(
 				ResultState::EXECUTED,
@@ -79,13 +82,25 @@ Executor::getInstance()->registerCommand(
 			$guard = new Guard();
 			$guard->setPassword($user, $context->getValue('password'));
 
+			$guard->addPermissions(
+				$user,
+				PermissionQuery::create()->filterByKey(
+					array(
+						'can-update-same-user',
+						'can-add-device-to-own-user',
+						'can-list-own-devices',
+						'can-delete-same-user'
+					)
+				)
+			);
+
 			session_start();
 			$_SESSION['user'] = $user;
 
 			return new UserResult(
 				ResultState::EXECUTED,
 				null,
-				$user
+				array($user)
 			);
 		}
 	}

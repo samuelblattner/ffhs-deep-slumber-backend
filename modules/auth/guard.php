@@ -28,13 +28,14 @@ class Guard {
 	}
 
 	public function setPassword(User $user, string $password): bool {
-		$user->setpassword(password_hash($password, PASSWORD_DEFAULT));
+		$user->setHashedPassword($password);
 		$user->save();
 		return true;
 	}
 
 	public function logout(User $user): bool {
-
+		session_destroy();
+		return true;
 	}
 
 	public function hasPerms(?AbstractCitizen $citizen, $permissions): bool {
@@ -54,6 +55,11 @@ class Guard {
 	}
 
 	public function addPermissions(AbstractCitizen $citizen, $permissions): bool {
-
+		foreach($permissions as $permission) {
+			$citizen->addPermission($permission);
+			$citizen->save();
+			$permission->save();
+		}
+		return true;
 	}
 }

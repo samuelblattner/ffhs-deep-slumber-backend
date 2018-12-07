@@ -39,3 +39,6 @@
 
   - name: Execute Database mirations
     command: chdir={{ remote_basedir }} ./vendor/bin/propel migrate
+
+  - name: Build Generated Database models
+    command: chdir={{ remote_basedir }} ./vendor/bin/propel model:build

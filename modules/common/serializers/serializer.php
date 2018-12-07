@@ -36,6 +36,18 @@ abstract class AbstractSerializer {
 	public function update() {
 		throw new RuntimeException( 'Method not implemented.' );
 	}
+
+	public function getInstance() {
+		return $this->instance;
+	}
+
+	public function setRawDataField($field, $value) {
+		if ($this->raw_data == null) {
+			$this->raw_data = array();
+		}
+
+		$this->raw_data[$field] = $value;
+	}
 }
 
 
@@ -43,15 +55,22 @@ abstract class AbstractModelSerializer extends AbstractSerializer {
 
 	protected $MODEL_FIELDS = [];
 	protected $MODEL_CLASS = null;
+	protected $QUERY_CLASS = null;
 
 	private function __deflateInstance( $instance ) {
 		$serialized = array();
+		if ( $instance == null ) {
+			return $serialized;
+		}
 		foreach ( $this->MODEL_FIELDS as $field ) {
 
 			$fieldname = $field['fieldname'];
 
-			if ( $field['method'] ) {
-				$serialized[ $fieldname ] = $instance->{$field['method']}();
+			if ( $field['getter'] ) {
+				if ( $field['getter'] === 'NOGET' ) {
+					continue;
+				}
+				$serialized[ $fieldname ] = $instance->{$field['getter']}();
 			} else {
 				if ( $instance->{$fieldname} != null ) {
 					$serialized[ $fieldname ] = $instance->{$fieldname};
@@ -63,9 +82,44 @@ abstract class AbstractModelSerializer extends AbstractSerializer {
 		return $serialized;
 	}
 
+	public function update() {
+
+		if ( $this->is_valid() ) {
+
+			if ( $this->instance == null ) {
+				$this->instance = $this->QUERY_CLASS::create()->findOneById( $this->raw_data['id'] );
+				if ( $this->instance == null ) {
+					$this->instance = new $this->MODEL_CLASS();
+				}
+			}
+			foreach ( $this->MODEL_FIELDS as $field ) {
+
+				$fieldname = $field['fieldname'];
+				if ( ! key_exists( $fieldname, $this->raw_data ) ) {
+					continue;
+				}
+
+				if ( $field['setter'] ) {
+					if ( $field['setter'] !== 'NOSET' ) {
+						$this->instance->{$field['setter']}( $this->raw_data[ $fieldname ] );
+					}
+				} else {
+					$this->instance->{$fieldname} = $this->raw_data[ $fieldname ];
+				}
+
+			}
+			$this->instance->save();
+		}
+	}
+
 	public function serialize(): array {
 		if ( $this->many ) {
 			$serialized = array();
+
+			if ( $this->instance == null ) {
+				return array();
+			}
+
 			foreach ( $this->instance as $instance ) {
 				array_push(
 					$serialized,

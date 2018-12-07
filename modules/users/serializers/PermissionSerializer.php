@@ -10,9 +10,9 @@ class PermissionSerializer extends AbstractModelSerializer {
 	private static $FIELD_LABEL = 'label';
 
 	protected $MODEL_FIELDS = [
-		[ 'fieldname' => 'id', 'method' => 'getId' ],
-		[ 'fieldname' => 'key', 'method' => 'getKey'],
-		[ 'fieldname' => 'label', 'method' => 'getLabel'],
+		[ 'fieldname' => 'id', 'getter' => 'getId' ],
+		[ 'fieldname' => 'key', 'getter' => 'getKey'],
+		[ 'fieldname' => 'label', 'getter' => 'getLabel'],
 		[ 'fieldname' => 'active']
 	];
 	protected $MODEL_CLASS = Permission::class;

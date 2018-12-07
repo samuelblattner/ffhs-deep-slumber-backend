@@ -8,7 +8,7 @@ class DeviceSerializer extends AbstractModelSerializer {
 	protected $MODEL_FIELDS = [
 		array(
 			'fieldname' => 'hwid',
-			'method' => 'getHwid'
+			'getter' => 'getHwid'
 		)
 	];
 

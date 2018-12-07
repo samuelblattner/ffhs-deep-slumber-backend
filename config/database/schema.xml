@@ -76,11 +76,11 @@
         <column name="permission_id" type="INTEGER" primaryKey="true" />
         <column name="citizen_id" type="INTEGER" primaryKey="true" />
 
-        <foreign-key foreignTable="permission">
+        <foreign-key foreignTable="permission" onDelete="CASCADE">
             <reference local="permission_id" foreign="id" />
         </foreign-key>
 
-        <foreign-key foreignTable="abstract_citizen">
+        <foreign-key foreignTable="abstract_citizen" onDelete="CASCADE">
             <reference local="citizen_id" foreign="id" />
         </foreign-key>
     </table>
@@ -92,6 +92,42 @@
 
         <foreign-key foreignTable="account">
             <reference local="user_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="sleep_cycle">
+        <column name="id" type="integer" primaryKey="true" autoIncrement="true" />
+        <column name="start" type="timestamp" />
+        <column name="end" type="timestamp" />
+        <column name="duration" type="integer" required="false" />
+        <column name="rating" type="integer" required="false" />
+        <column name="device_hwid" type="varchar" size="32" />
+
+        <foreign-key foreignTable="device">
+            <reference local="device_hwid" foreign="hwid" />
+        </foreign-key>
+    </table>
+
+    <table name="sleep_event">
+        <column name="id" type="integer" primaryKey="true" autoIncrement="true" />
+        <column name="timestamp" type="timestamp" />
+        <column name="type" type="varchar" size="16" />
+        <column name="sleep_cycle_id" type="integer"/>
+
+        <foreign-key foreignTable="sleep_cycle">
+            <reference local="sleep_cycle_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="alarm">
+        <column name="id" type="integer" primaryKey="true" autoIncrement="true" />
+        <column name="earliest" type="time" required="false" />
+        <column name="latest" type="time" />
+        <column name="active" type="boolean" />
+        <column name="device_hwid" type="varchar" size="32" />
+
+        <foreign-key foreignTable="device">
+            <reference local="device_hwid" foreign="hwid" />
         </foreign-key>
     </table>
 

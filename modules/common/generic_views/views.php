@@ -46,6 +46,7 @@ abstract class UpdateAPIView extends AbstractModelAPIView {
 		$serializer_class = $this->getSerializer();
 		$serializer = new $serializer_class($rawData);
 		$ctx = $serializer->asContext($ctx);
+		$ctx->setValue('serializer', $serializer);
 		return Executor::getInstance()->execute($this->getCommandKey(), $ctx);
 
 	}
@@ -57,13 +58,38 @@ abstract class UpdateAPIView extends AbstractModelAPIView {
 
 		if ($result->getResultMeta()->getState() == ResultState::INSUFFICIENT_PERMISSIONS) {
 			return new UnauthorizedResponse();
+
 		}
+
+		$serializer_class = $this->getSerializer();
+		$serializer = new $serializer_class(null, $result->getResultObject()[0]);
+		return new JSONResponse(200, $serializer->serialize());
 	}
 }
 
 
 abstract class DeleteAPIView extends AbstractModelAPIView {
 
+	private function __delete($user, $rawData) {
+		$ctx = new ExecutionContext($user);
+		$serializer_class = $this->getSerializer();
+		$serializer = new $serializer_class($rawData);
+		$ctx = $serializer->asContext($ctx);
+		return Executor::getInstance()->execute($this->getCommandKey(), $ctx);
+
+	}
+
+	public function delete( Request $request ): AbstractResponse {
+		$guard = new Guard();
+		$user = $guard->getSessionUser();
+		$result = $this->__delete($user, $this->getRequestData($request));
+
+		if ($result->getResultMeta()->getState() == ResultState::INSUFFICIENT_PERMISSIONS) {
+			return new UnauthorizedResponse();
+		}
+
+		return new JSONResponse(204, null);
+	}
 }
 
 

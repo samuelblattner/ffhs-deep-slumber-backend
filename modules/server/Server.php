@@ -5,6 +5,7 @@ include __DIR__.'/../common/value_objects/request.php';
 global $SETTINGS;
 include $SETTINGS['main-routes-file'];
 
+
 class Server {
 
 	/**
@@ -47,6 +48,10 @@ class Server {
 				}
 				case 'PATCH': {
 					$response = $view->patch($this->__createRequest());
+					break;
+				}
+				case 'DELETE': {
+					$response = $view->delete($this->__createRequest());
 					break;
 				}
 				default: {

@@ -28,7 +28,7 @@ abstract class AbstractAPIView {
 	}
 
 	public function getRequestData($request): array {
-		return $request->postData;
+		return $request->postData ? $request->postData : array();
 	}
 
 	public function getExecutionContext($request): ExecutionContext {

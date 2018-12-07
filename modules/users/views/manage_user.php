@@ -23,6 +23,25 @@ class UpdateUserView extends UpdateAPIView {
 	}
 }
 
+
+class DeleteUserView extends DeleteAPIView {
+
+	protected function getCommandKey(): string {
+		global $CMD_DELETE_USER;
+		return $CMD_DELETE_USER;
+	}
+
+	protected function getSerializer() {
+		return UserSerializer::class;
+	}
+
+	public function getRequestData( $request ): array {
+		$data = parent::getRequestData( $request );
+		$data['id'] = $this->urlArgs['id'];
+		return $data;
+	}
+}
+
 class ListUsersView extends ListAPIView {
 
 	protected function getCommandKey(): string {
