@@ -66,7 +66,7 @@ abstract class AbstractModelSerializer extends AbstractSerializer {
 
 			$fieldname = $field['fieldname'];
 
-			if ( $field['getter'] ) {
+			if ( key_exists('getter' , $field) && $field['getter'] ) {
 				if ( $field['getter'] === 'NOGET' ) {
 					continue;
 				}
@@ -99,7 +99,7 @@ abstract class AbstractModelSerializer extends AbstractSerializer {
 					continue;
 				}
 
-				if ( $field['setter'] ) {
+				if ( key_exists('setter', $field) && $field['setter'] ) {
 					if ( $field['setter'] !== 'NOSET' ) {
 						$this->instance->{$field['setter']}( $this->raw_data[ $fieldname ] );
 					}

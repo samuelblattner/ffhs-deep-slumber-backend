@@ -45,7 +45,7 @@ class Router {
 		foreach(($use_routes ? $use_routes : $ROUTES) as $route ) {
 			$pattern = $route[0];
 			$viewClass = $route[1];
-			$vector = $route[2];
+			$vector = sizeof($route) > 2 ? $route[2] : null;
 
 			$matches = array();
 			$found = preg_match($pattern, $url, $matches);
