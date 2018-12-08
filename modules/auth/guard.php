@@ -34,13 +34,24 @@ class Guard {
 	}
 
 	public function logout(User $user): bool {
-		session_destroy();
+
+		$curId = session_id();
+		if ($user && $user->getSession()) {
+			session_start($user->getSession());
+			session_id($user->getSession());
+			session_destroy();
+			session_start($curId);
+			session_id($curId);
+		}
 		return true;
 	}
 
 	public function hasPerms(?AbstractCitizen $citizen, $permissions): bool {
 		if ($citizen == null) {
 			return false;
+		}
+		if ($citizen->getIsAdmin()) {
+			return true;
 		}
 		$citizen->clearPermissions();
 		$citizenPermissions = $citizen->getPermissions()->getColumnValues('key');

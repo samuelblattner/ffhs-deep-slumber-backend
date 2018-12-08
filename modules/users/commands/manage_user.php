@@ -11,13 +11,16 @@ include_once __DIR__ . '/../../auth/commands/results/UserResult.php';
 include_once __DIR__ . '/../../auth/commands/results/PermissionResult.php';
 
 global $CMD_UPDATE_USER;
-global $CMD_DELETE_USE;
+global $CMD_DELETE_USER;
+global $CMD_DELETE_OTHER_USER;
 global $CMD_REGISTER_USER;
 global $CMD_DELETE_USER;
 global $CMD_CHECK_USERNAME_EXISTS;
 global $CMD_LIST_USER_PERMISSIONS;
 global $CMD_TOGGLE_USER_PERMISSION;
 global $CMD_ADD_DEVICE;
+global $CMD_LIST_USER_DEVICES;
+global $CMD_LIST_ALL_USERS_DEVICES;
 
 
 Executor::getInstance()->registerCommand(
@@ -29,20 +32,43 @@ Executor::getInstance()->registerCommand(
 
 		public function execute( ?ifcontext $context ): AbstractResult {
 
+			$user  = $context->getRequester();
+			$guard = new Guard();
+			$guard->logout($user);
+			$user->delete();
+
+			return new UserResult(
+				ResultState::EXECUTED,
+				null,
+				null
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_DELETE_OTHER_USER,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-delete-all-users',
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
 			$requester  = $context->getRequester();
 			$userId = $context->getValue( 'id' );
 
-			if ( $userId === $requester->getId() ) {
-				$user = UserQuery::create()->findOneById( $userId );
-				$guard = new Guard();
-				$guard->logout($user);
-				$user->delete();
-			} else {
-				return new OperationResult(
-					ResultState::INSUFFICIENT_PERMISSIONS,
-					null
-				);
+			$user = UserQuery::create()->findOneById( $userId );
+			$guard = new Guard();
+			$devices = $user->getDevices();
+			foreach($devices as $device) {
+				$user->removeDevice($device);
+				$device->getSleepCycles()->delete();
+				$device->save();
 			}
+			$guard->logout($user);
+			$user->delete();
 
 			return new UserResult(
 				ResultState::EXECUTED,
@@ -230,6 +256,41 @@ Executor::getInstance()->registerCommand(
 
 
 Executor::getInstance()->registerCommand(
+	$CMD_REMOVE_DEVICE,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-remove-devices-from-all-users'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$device = DeviceQuery::create()->findOneByHwid($context->getValue('deviceId'));
+
+			if ($device == null) {
+				return new OperationResult(
+					ResultState::OPERATION_ERROR,
+					'No such device'
+				);
+			}
+
+			$user = UserQuery::create()->findOneById($context->getValue('forUser'));
+			$user->removeDevice($device);
+			$user->save();
+
+			$device->getSleepCycles()->delete();
+			$device->save();
+
+			return new DeviceResult(
+				ResultState::EXECUTED,
+				null,
+				array($device)
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
 	$CMD_LIST_USER_DEVICES,
 	new class extends AbstractCommand {
 		protected static $minPermissions = array(
@@ -239,6 +300,30 @@ Executor::getInstance()->registerCommand(
 		public function execute( ?ifcontext $context ): AbstractResult {
 
 			$user = $context->getRequester();
+
+			$devices = $user->getDevices()->getArrayCopy();
+
+			return new DeviceResult(
+				ResultState::EXECUTED,
+				null,
+				$devices
+			);
+		}
+	}
+);
+
+
+Executor::getInstance()->registerCommand(
+	$CMD_LIST_ALL_USERS_DEVICES,
+	new class extends AbstractCommand {
+		protected static $minPermissions = array(
+			'can-list-all-users-devices'
+		);
+
+		public function execute( ?ifcontext $context ): AbstractResult {
+
+			$userId = $context->getValue('userId');
+			$user = UserQuery::create()->findOneById($userId);
 
 			$devices = $user->getDevices()->getArrayCopy();
 

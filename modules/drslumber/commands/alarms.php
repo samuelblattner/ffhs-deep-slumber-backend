@@ -71,7 +71,7 @@ Executor::getInstance()->registerCommand(
 		public function execute( ?ifcontext $context ): AbstractResult {
 
 			$userDevice = DeviceQuery::create()->filterByUser( $context->getRequester() )->findOne();
-			$alarm      = AlarmQuery::create()->filterByDevice( $userDevice )->orderById( Criteria::DESC )->find()[0];
+			$alarm      = $userDevice ? AlarmQuery::create()->filterByDevice( $userDevice )->orderById( Criteria::DESC )->find()[0] : null;
 
 			return new AlarmResult(
 				ResultState::EXECUTED,

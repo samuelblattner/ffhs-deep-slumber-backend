@@ -44,12 +44,14 @@
     </table>
 
     <table name="account" phpName="User">
+        <column name="is_admin" type="boolean" />
         <column name="username" type="varchar" size="64" required="false" phpName="username"/>
         <column name="first_name" type="varchar" size="64" required="false" phpName="first_name"/>
         <column name="last_name" type="varchar" size="64" required="false" phpName="last_name"/>
         <column name="email" type="varchar" size="256" required="false" phpName="email"/>
         <column name="last_login" type="timestamp" required="false" phpName="last_login"/>
         <column name="password" type="varchar" required="false" size="256" phpName="password" />
+        <column name="session" type="varchar" required="false" size="256" />
 
         <unique>
             <unique-column name="username" />
@@ -90,7 +92,7 @@
         <column name="user_id" type="integer" required="false" />
         <column name="last_heartbeat" type="timestamp" required="false" />
 
-        <foreign-key foreignTable="account">
+        <foreign-key foreignTable="account"  onDelete="SETNULL">
             <reference local="user_id" foreign="id" />
         </foreign-key>
     </table>
@@ -98,7 +100,7 @@
     <table name="sleep_cycle">
         <column name="id" type="integer" primaryKey="true" autoIncrement="true" />
         <column name="start" type="timestamp" />
-        <column name="end" type="timestamp" />
+        <column name="stop" type="timestamp" />
         <column name="duration" type="integer" required="false" />
         <column name="rating" type="integer" required="false" />
         <column name="device_hwid" type="varchar" size="32" />

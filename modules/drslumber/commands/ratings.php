@@ -22,6 +22,7 @@ Executor::getInstance()->registerCommand(
 		public function execute(?ifcontext $context): AbstractResult {
 
 			$userDevice = DeviceQuery::create()->filterByUser($context->getRequester())->findOne();
+
 			$cycle = SleepCycleQuery::create()->filterByDevice($userDevice)->orderById(Criteria::DESC)->find()[0];
 			$cycle->setRating($context->getValue('rating'));
 			$cycle->save();
@@ -46,12 +47,12 @@ Executor::getInstance()->registerCommand(
 		public function execute(?ifcontext $context): AbstractResult {
 
 			$userDevice = DeviceQuery::create()->filterByUser($context->getRequester())->findOne();
-			$cycle = SleepCycleQuery::create()->filterByDevice($userDevice)->orderById(Criteria::DESC)->find()[0];
+			$cycle = $userDevice ? SleepCycleQuery::create()->filterByDevice($userDevice)->orderById(Criteria::DESC)->find()[0] : null;
 
 			return new BooleanResult(
 				ResultState::EXECUTED,
 				null,
-				$cycle->getRating() == null
+				$cycle && $cycle->getRating() == null
 			);
 		}
 	}

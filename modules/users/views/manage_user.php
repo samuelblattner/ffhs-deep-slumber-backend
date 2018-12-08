@@ -34,6 +34,19 @@ class DeleteUserView extends DeleteAPIView {
 	protected function getSerializer() {
 		return UserSerializer::class;
 	}
+}
+
+
+class DeleteOtherUserView extends DeleteAPIView {
+
+	protected function getCommandKey(): string {
+		global $CMD_DELETE_OTHER_USER;
+		return $CMD_DELETE_OTHER_USER;
+	}
+
+	protected function getSerializer() {
+		return UserSerializer::class;
+	}
 
 	public function getRequestData( $request ): array {
 		$data = parent::getRequestData( $request );
@@ -111,6 +124,26 @@ class UserDevicesListView extends ListAPIView {
 }
 
 
+
+class AllUsersDevicesListView extends ListAPIView {
+
+	protected function getCommandKey(): string {
+		global $CMD_LIST_ALL_USERS_DEVICES;
+		return $CMD_LIST_ALL_USERS_DEVICES;
+	}
+
+	protected function getSerializer() {
+		return DeviceSerializer::class;
+	}
+
+	public function getExecutionContext($request): ExecutionContext {
+		$ctx = parent::getExecutionContext($request);
+		$ctx->setValue('userId', $this->urlArgs['uid']);
+		return $ctx;
+	}
+}
+
+
 class AddDeviceView extends AbstractAPIView {
 
 	public function getExecutionContext( $request ): ExecutionContext {
@@ -127,11 +160,37 @@ class AddDeviceView extends AbstractAPIView {
 		$result = Executor::getInstance()->execute($CMD_ADD_DEVICE, $ctx);
 
 		if ($result->getResultMeta()->getState() == ResultState::INSUFFICIENT_PERMISSIONS) {
-			return new UnauthorizedResponse();
+			return new UnauthorizedResponse(401, 'You are not allowed to add a device at this time');
 		} else if ($result->getResultMeta()->getState() == ResultState::OPERATION_ERROR) {
 			return new JSONResponse(403, array('error' => $result->getResultMeta()->getMessage()));
 		}
 
 		return new JSONResponse(200, null);
+	}
+}
+
+
+class RemoveDeviceView extends AbstractAPIView {
+
+	public function getExecutionContext( $request ): ExecutionContext {
+		$ctx = parent::getExecutionContext( $request );
+		$ctx->setValue('forUser', $this->urlArgs['uid']);
+		$ctx->setValue('deviceId', $request->postData['deviceId']);
+		return $ctx;
+	}
+
+	public function post(Request $request): AbstractResponse {
+
+		global $CMD_REMOVE_DEVICE;
+		$ctx = $this->getExecutionContext($request);
+		$result = Executor::getInstance()->execute($CMD_REMOVE_DEVICE, $ctx);
+
+		if ($result->getResultMeta()->getState() == ResultState::INSUFFICIENT_PERMISSIONS) {
+			return new UnauthorizedResponse();
+		} else if ($result->getResultMeta()->getState() == ResultState::OPERATION_ERROR) {
+			return new JSONResponse(403, array('error' => $result->getResultMeta()->getMessage()));
+		}
+
+		return new JSONResponse(204, null);
 	}
 }

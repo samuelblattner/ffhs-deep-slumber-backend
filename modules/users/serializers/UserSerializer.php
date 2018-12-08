@@ -10,6 +10,7 @@ class UserSerializer extends AbstractModelSerializer {
 	private static $FIELD_FIRST_NAME = 'first_name';
 	private static $FIELD_LAST_NAME = 'last_name';
 	private static $FIELD_PASSWORD = 'password';
+	private static $FIELD_ADMIN = 'is_admin';
 
 	protected $MODEL_FIELDS = [
 		[ 'fieldname' => 'id', 'getter' => 'getId' , 'setter' => 'setId'],
@@ -18,6 +19,8 @@ class UserSerializer extends AbstractModelSerializer {
 		[ 'fieldname' => 'last_name', 'getter' => 'getLast_name', 'setter' => 'setLast_name'],
 		[ 'fieldname' => 'email', 'getter' => 'getEmail', 'setter' => 'setEmail'],
 		[ 'fieldname' => 'password', 'getter' => 'NOGET', 'setter' => 'setHashedPassword'],
+		[ 'fieldname' => 'is_admin', 'getter' => 'getIsAdmin', 'setter' => 'NOSET'],
+		[ 'fieldname' => 'has_device', 'getter' => 'hasDevice', 'setter' => 'NOSET'],
 	];
 	protected $MODEL_CLASS = User::class;
 	protected $QUERY_CLASS = UserQuery::class;
@@ -44,6 +47,7 @@ class UserSerializer extends AbstractModelSerializer {
 		}
 		$ctx->setValue('id', $this->instance ? $this->instance->getId() : (int)$this->raw_data[UserSerializer::$FIELD_ID]);
 		$ctx->setValue('password', $this->instance ? $this->instance->getPassword() : $this->raw_data[UserSerializer::$FIELD_PASSWORD]);
+		$ctx->setValue('is_admin', $this->instance ? $this->instance->getIsAdmin() : $this->raw_data[UserSerializer::$FIELD_ADMIN]);
 		return $ctx;
 	}
 }

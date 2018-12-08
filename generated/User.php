@@ -18,4 +18,8 @@ class User extends BaseUser
 	public function setHashedPassword($pw) {
 		$this->setpassword(password_hash($pw, PASSWORD_DEFAULT));
 	}
+
+	public function hasDevice() {
+		return $this->getDevices()->count() > 0;
+	}
 }

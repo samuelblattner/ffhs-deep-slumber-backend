@@ -36,6 +36,8 @@ Executor::getInstance()->registerCommand(
 			}
 
 			session_start();
+			$user->setSession(session_id());
+			$user->save();
 			$_SESSION['user'] = $user;
 
 			return new UserResult(
@@ -89,12 +91,19 @@ Executor::getInstance()->registerCommand(
 						'can-update-same-user',
 						'can-add-device-to-own-user',
 						'can-list-own-devices',
-						'can-delete-same-user'
+						'can-delete-same-user',
+						'can-rate-own-wake-up',
+						'can-check-rating-required',
+						'can-list-own-alarm',
+						'can-update-own-alarm',
+						'can-list-own-sleep-statistics'
 					)
 				)
 			);
 
 			session_start();
+			$user->setSession(session_id());
+			$user->save();
 			$_SESSION['user'] = $user;
 
 			return new UserResult(

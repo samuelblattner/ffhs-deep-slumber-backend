@@ -4,6 +4,9 @@
 global $CMD_DISPLAY_GLOBAL_STATSTICS;
 $CMD_DISPLAY_GLOBAL_STATSTICS = 'display-global-statistics';
 
+global $CMD_DISPLAY_USER_STATSTICS;
+$CMD_DISPLAY_USER_STATSTICS = 'display-user-statistics';
+
 global $CMD_RATE_LAST_WAKE_UP;
 $CMD_RATE_LAST_WAKE_UP = 'rate-last-wakeup';
 
@@ -15,3 +18,6 @@ $CMD_SAVE_ALARM = 'save-alarm';
 
 global $CMD_LIST_ALARM;
 $CMD_LIST_ALARM = 'list-alarm';
+
+global $CMD_GENERATE_RANDOM_SLEEP_CYCLE;
+$CMD_GENERATE_RANDOM_SLEEP_CYCLE = 'generate-random-sleep-cycle-for-all-users';
