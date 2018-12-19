@@ -24,7 +24,7 @@ class Guard {
 
 	public function getSessionUser(): ?User {
 		session_start();
-		return $_SESSION['user'];
+		return key_exists('user', $_SESSION) ? $_SESSION['user'] : null;
 	}
 
 	public function setPassword(User $user, string $password): bool {

@@ -115,6 +115,7 @@
         <column name="timestamp" type="timestamp" />
         <column name="type" type="varchar" size="16" />
         <column name="sleep_cycle_id" type="integer"/>
+        <column name="value" type="float" />
 
         <foreign-key foreignTable="sleep_cycle">
             <reference local="sleep_cycle_id" foreign="id" />

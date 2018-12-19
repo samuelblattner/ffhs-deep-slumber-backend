@@ -11,7 +11,8 @@
   ],
   "require": {
     "propel/propel": "2.0.0-alpha8",
-    "cboden/ratchet": "^0.4"
+    "cboden/ratchet": "^0.4",
+    "clue/redis-react": "^2.2"
   },
   "require-dev": {
     "phpunit/phpunit": "7.4.0"

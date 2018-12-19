@@ -1,5 +1,6 @@
 <?php
 
+use MissionControl\Settings;
 use Propel\Runtime\ActiveQuery\Criteria;
 
 include_once __DIR__ . '/../../../generated/AlarmQuery.php';
@@ -83,6 +84,9 @@ Executor::getInstance()->registerCommand(
 );
 
 
+/**
+ *
+ */
 Executor::getInstance()->registerCommand(
 	$CMD_SAVE_ALARM,
 	new class extends AbstractCommand {
@@ -96,9 +100,17 @@ Executor::getInstance()->registerCommand(
 			$alarmSerializer = $context->getValue( 'serializer' );
 			$userDevice = DeviceQuery::create()->filterByUser( $requester)->findOne();
 
-
 			$alarmSerializer->setRawDataField('device_hwid', $userDevice->getHwid());
 			$alarmSerializer->update();
+
+			$settings = new Settings();
+			$settings->deviceId = $userDevice->getHwid();
+			$settings->wakeTime = $alarmSerializer->getInstance()->getLatest();
+
+			\MissionControl\MissionControl::pushMessage(
+				$userDevice->getHwid(),
+				$settings
+			);
 
 			return new AlarmResult(
 				ResultState::EXECUTED,

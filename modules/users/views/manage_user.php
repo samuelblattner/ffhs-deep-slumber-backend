@@ -59,7 +59,6 @@ class ListUsersView extends ListAPIView {
 
 	protected function getCommandKey(): string {
 		global $CMD_LISTS_USERS;
-
 		return $CMD_LISTS_USERS;
 	}
 
