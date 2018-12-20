@@ -105,7 +105,8 @@ Executor::getInstance()->registerCommand(
 
 			$settings = new Settings();
 			$settings->deviceId = $userDevice->getHwid();
-			$settings->wakeTime = $alarmSerializer->getInstance()->getLatest();
+			$settings->earliestWakeTime = $alarmSerializer->getInstance()->getEarliest();
+			$settings->latestWakeTime = $alarmSerializer->getInstance()->getLatest();
 
 			\MissionControl\MissionControl::pushMessage(
 				$userDevice->getHwid(),

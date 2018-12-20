@@ -10,7 +10,7 @@ require dirname( __DIR__ ) . '/../vendor/autoload.php';
 
 $server = new IoServer(
 	new HttpServer(new WsServer(new MissionControl())),
-	new Reactor('192.168.1.41:8777', MissionControl::getMissionControlEventLoop()),
+	new Reactor('0.0.0.0:8777', MissionControl::getMissionControlEventLoop()),
 	MissionControl::getMissionControlEventLoop()
 );
 

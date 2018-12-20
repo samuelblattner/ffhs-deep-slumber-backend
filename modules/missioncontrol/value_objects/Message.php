@@ -61,7 +61,8 @@ class Event extends AbstractMessage {
 class Settings extends AbstractMessage {
 
 	public $deviceId;
-	public $wakeTime;
+	public $earliestWakeTime;
+	public $latestWakeTime;
 	public $wakeMaxSpan;
 	public $wakeOffsetEstimator;
 	public $accSensitivity;
@@ -73,7 +74,8 @@ class Settings extends AbstractMessage {
 
 	protected static $_fields = [
 		'deviceId',
-		'wakeTime',
+		'earliestWakeTime',
+		'latestWakeTime',
 		'wakeMaxSpan',
 		'wakeOffsetEstimator',
 		'accSensitivity',
