@@ -30,59 +30,98 @@ class MissionControl implements MessageComponentInterface {
 	protected $connectionDeviceMap;
 	protected $deviceConnectionMap;
 
+	protected $deviceStateListeners;
+
 	private static $eventLoop = null;
 
 	public static function getMissionControlEventLoop(): React\EventLoop\LoopInterface {
-		if (MissionControl::$eventLoop == null) {
+		if ( MissionControl::$eventLoop == null ) {
 			MissionControl::$eventLoop = React\EventLoop\Factory::create();
 		}
+
 		return MissionControl::$eventLoop;
 	}
 
-	public static function pushMessage($deviceId, AbstractMessage $payload) {
-		$factory = new Factory(MissionControl::getMissionControlEventLoop());
+	public static function pushMessage( $deviceId, AbstractMessage $payload ) {
+		$factory = new Factory( MissionControl::getMissionControlEventLoop() );
 
-		$factory->createClient('redis://127.0.0.1:6379')->then(function (Client $client) use ($payload) {
-			$client->publish('websocket_out', $payload->serialize());
+		$factory->createClient( 'redis://127.0.0.1:6379' )->then( function ( Client $client ) use ( $payload ) {
+			$client->publish( 'websocket_out', $payload->serialize() );
 			$client->end();
 
-		}, function($error) {echo $error;});
+		}, function ( $error ) {
+			echo $error;
+		} );
 
 		MissionControl::getMissionControlEventLoop()->run();
-
 	}
 
 	private function __handleHelloMessage( HelloMessage $helloMsg, ConnectionInterface $fromSender ) {
 		try {
-			$device                                                          = DeviceQuery::create()->filterByHwid( $helloMsg->getHwId() )->findOneOrCreate()->save();
-			$this->connectionDeviceMap[$this->clients->getHash($fromSender)] = $helloMsg->getHwId();
-			$this->deviceConnectionMap[$helloMsg->getHwId()] = $fromSender;
+			$device                                                              = DeviceQuery::create()->filterByHwid( $helloMsg->getHwId() )->findOneOrCreate()->save();
+			$this->connectionDeviceMap[ $this->clients->getHash( $fromSender ) ] = $helloMsg->getHwId();
+			$this->deviceConnectionMap[ $helloMsg->getHwId() ]                   = $fromSender;
 		} catch ( PropelException $e ) {
 
 		}
+
+
+
+		if ($this->deviceStateListeners[$helloMsg->getHwId()]) {
+			foreach ( $this->deviceStateListeners[$helloMsg->getHwId() ] as $client ) {
+				$client->send( $helloMsg->serialize() );
+			}
+		}
+	}
+
+	private function __handleDeviceStateRequest( RequestDeviceStateMessage $reqMsg, ConnectionInterface $client ) {
+
+		$device = DeviceQuery::create()->findOneByHwid( $reqMsg->getHwId() );
+		if ( $device != null ) {
+			if ( ! array_key_exists( $reqMsg->getHwId(), $this->deviceStateListeners ) ) {
+				$this->deviceStateListeners[ $reqMsg->getHwId() ] = array();
+			}
+			if ( ! in_array( $client, $this->deviceStateListeners[ $reqMsg->getHwId() ] ) ) {
+				array_push( $this->deviceStateListeners[ $reqMsg->getHwId() ], $client );
+			}
+
+			if ($this->deviceConnectionMap[$device->getHwid()]) {
+				$client->send('isonline');
+
+				if ($this->deviceStateListeners[$device->getHwid()]) {
+
+					$msg = new HelloMessage();
+					$msg->hwid = $device->getHwid();
+					foreach ( $this->deviceStateListeners[ $device->getHwid() ] as $client ) {
+						$client->send( $msg->serialize() );
+					}
+				}
+			}
+		}
+
 	}
 
 	private function __handleEvent( ConnectionInterface $sender, Event $event ) {
 
-		$device = DeviceQuery::create()->findOneByHwid($this->connectionDeviceMap[$this->clients->getHash($sender)]);
-		$openSleepCycle = SleepCycleQuery::create()->filterByDeviceHwid($device->getHwid())->filterByStop(null)->orderById(Criteria::DESC)->findOne();
+		$device         = DeviceQuery::create()->findOneByHwid( $this->connectionDeviceMap[ $this->clients->getHash( $sender ) ] );
+		$openSleepCycle = SleepCycleQuery::create()->filterByDeviceHwid( $device->getHwid() )->filterByStop( null )->orderById( Criteria::DESC )->findOne();
 
 		switch ( $event->event_type ) {
 			case EventType::START_REC:
 				{
 					$sleepCycle = new SleepCycle();
-					$sleepCycle->setDevice($device);
-					$sleepCycle->setStart($event->timestamp);
+					$sleepCycle->setDevice( $device );
+					$sleepCycle->setStart( $event->timestamp );
 					$sleepCycle->save();
 					break;
 				}
 
 			case EventType::STOP_REC:
 				{
-					$endtime = strtotime($event->timestamp);
-					if ($openSleepCycle != null) {
-						$openSleepCycle->setStop($endtime);
-						$openSleepCycle->setDuration(($endtime - $openSleepCycle->getStart()->getTimestamp())/60);
+					$endtime = strtotime( $event->timestamp );
+					if ( $openSleepCycle != null ) {
+						$openSleepCycle->setStop( $endtime );
+						$openSleepCycle->setDuration( ( $endtime - $openSleepCycle->getStart()->getTimestamp() ) / 60 );
 						$openSleepCycle->save();
 					}
 					break;
@@ -92,17 +131,24 @@ class MissionControl implements MessageComponentInterface {
 			case EventType::HUMIDITY:
 			case EventType::PRESSURE:
 				{
-					if ($openSleepCycle != null) {
+					if ( $openSleepCycle != null ) {
 						$sleepEvent = new SleepEvent();
-						$sleepEvent->setTimestamp($event->timestamp);
-						$sleepEvent->setType($event->event_type);
-						$sleepEvent->setSleepCycle($openSleepCycle);
-						$sleepEvent->setValue($event->value);
+						$sleepEvent->setTimestamp( $event->timestamp );
+						$sleepEvent->setType( $event->event_type );
+						$sleepEvent->setSleepCycle( $openSleepCycle );
+						$sleepEvent->setValue( $event->value );
 						$sleepEvent->save();
 					}
 					break;
 				}
 		}
+
+		if ($this->deviceStateListeners[$device->getHwId()]) {
+			foreach ( $this->deviceStateListeners[ $device->getHwId() ] as $client ) {
+				$client->send( $event->serialize() );
+			}
+		}
+
 	}
 
 	private function __handleMessage( ConnectionInterface $sender, string $rawMessage ) {
@@ -114,17 +160,25 @@ class MissionControl implements MessageComponentInterface {
 				{
 					$helloMsg = new HelloMessage();
 					$helloMsg->deserialize( $rawMessage );
-					$this->__handleHelloMessage( $helloMsg, $sender);
+					$this->__handleHelloMessage( $helloMsg, $sender );
+					break;
+				}
+			case MessageType::REQUEST_DEVICE_STATE:
+				{
+					$reqMsg = new RequestDeviceStateMessage();
+					$reqMsg->deserialize($rawMessage);
+					$this->__handleDeviceStateRequest($reqMsg, $sender);
 					break;
 				}
 			case MessageType::EVENT:
 				{
-					if (!array_key_exists($this->clients->getHash($sender), $this->connectionDeviceMap)) {
+					if ( ! array_key_exists( $this->clients->getHash( $sender ), $this->connectionDeviceMap ) ) {
 						return;
 					}
 					$event = new Event();
 					$event->deserialize( $rawMessage );
 					$this->__handleEvent( $sender, $event );
+					break;
 				}
 		}
 	}
@@ -133,31 +187,44 @@ class MissionControl implements MessageComponentInterface {
 	 * MissionControl constructor.
 	 */
 	public function __construct() {
-		$this->clients             = new \SplObjectStorage;
-		$this->connectionDeviceMap = array();
-		$this->deviceConnectionMap = array();
-		$this->setupRedisListener(MissionControl::getMissionControlEventLoop());
+		$this->clients              = new \SplObjectStorage;
+		$this->connectionDeviceMap  = array();
+		$this->deviceConnectionMap  = array();
+		$this->deviceStateListeners = array( array() );
+		$this->setupRedisListener( MissionControl::getMissionControlEventLoop() );
 	}
 
-	private function handleOutMessage($payload) {
-		if (array_key_exists('deviceId', $payload) && array_key_exists($payload['deviceId'], $this->deviceConnectionMap)) {
-			$connection = $this->deviceConnectionMap[$payload['deviceId']];
-			$connection->send(json_encode($payload));
+	private function handleOutMessage( $payload ) {
+		if ( array_key_exists( 'msgType', $payload ) ) {
+			if ( $payload['msgType'] == MessageType::SETTINGS ) {
+				if ( array_key_exists( 'deviceId', $payload ) && array_key_exists( $payload['deviceId'], $this->deviceConnectionMap ) ) {
+					$connection = $this->deviceConnectionMap[ $payload['deviceId'] ];
+					$connection->send( json_encode( $payload ) );
+				}
+			} else if ( $payload['msgType'] == MessageType::DEVICE_STATE ) {
+				if ( array_key_exists( 'deviceId', $payload ) && array_key_exists( $payload['deviceId'], $this->deviceStateListeners ) ) {
+					foreach ( $this->deviceStateListeners as $client ) {
+						$client->send( json_encode( $payload ) );
+					}
+				}
+			}
 		}
 	}
 
-	public function setupRedisListener($loop) {
-		$factory = new Factory($loop);
+	public function setupRedisListener( $loop ) {
+		$factory = new Factory( $loop );
 
-		$factory->createClient('redis://127.0.0.1:6379')->then(function (Client $client) {
-			$client->on('message', function($channel, $serialized_payload) {
-				if ($channel == 'websocket_out') {
-					$this->handleOutMessage(json_decode($serialized_payload, TRUE));
+		$factory->createClient( 'redis://127.0.0.1:6379' )->then( function ( Client $client ) {
+			$client->on( 'message', function ( $channel, $serialized_payload ) {
+				if ( $channel == 'websocket_out' ) {
+					$this->handleOutMessage( json_decode( $serialized_payload, true ) );
 				}
-			});
-			$client->subscribe('websocket_out');
+			} );
+			$client->subscribe( 'websocket_out' );
 
-		}, function($error) {echo 'nop'; echo $error;});
+		}, function ( $error ) {
+			echo $error;
+		} );
 
 	}
 
@@ -169,13 +236,28 @@ class MissionControl implements MessageComponentInterface {
 
 		$this->__handleMessage( $from, $msg );
 
-		foreach ( $this->clients as $client ) {
-			$client->send( "HELLO" );
-		}
 	}
 
 	public function onClose( ConnectionInterface $conn ) {
 		$this->clients->detach( $conn );
+
+		if($this->connectionDeviceMap[ $this->clients->getHash( $conn) ]) {
+
+			$deviceId = $this->connectionDeviceMap[ $this->clients->getHash( $conn) ];
+			if ($this->deviceConnectionMap[$deviceId]) {
+				array_splice($this->deviceConnectionMap, array_search($deviceId, $this->deviceConnectionMap));
+			}
+			if ($this->deviceStateListeners[$deviceId]) {
+
+				$msg = new GoodbyeMessage();
+				$msg->hwid = $deviceId;
+				foreach ( $this->deviceStateListeners[ $deviceId ] as $client ) {
+					$client->send( $msg->serialize() );
+				}
+			}
+		}
+
+
 	}
 
 	public function onError( ConnectionInterface $conn, \Exception $e ) {

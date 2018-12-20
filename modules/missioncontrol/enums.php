@@ -5,6 +5,9 @@ abstract class MessageType {
 	const SETTINGS = 2;
 	const COMMAND = 3;
 	const EVENT = 4;
+	const DEVICE_STATE = 5;
+	const REQUEST_DEVICE_STATE = 6;
+	const GOODBYE = 10;
 	const HEARTBEAT = 100;
 }
 
@@ -19,4 +22,6 @@ abstract class EventType {
 	const TEMPERATURE = 1001;
 	const PRESSURE = 1002;
 	const HUMIDITY = 1003;
+	const STATE_CHANGE = 2000;
+
 }

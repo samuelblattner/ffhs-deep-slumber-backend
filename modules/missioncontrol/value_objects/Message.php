@@ -44,6 +44,7 @@ abstract class AbstractMessage {
 
 class Event extends AbstractMessage {
 
+	public $hwid;
 	public $event_type;
 	public $timestamp;
 	public $value;
@@ -51,6 +52,7 @@ class Event extends AbstractMessage {
 	protected $_msgType = MessageType::EVENT;
 
 	protected static $_fields = [
+		'hwid',
 		'event_type',
 		'timestamp',
 		'value'
@@ -90,9 +92,47 @@ class HelloMessage extends AbstractMessage {
 	protected static $_fields = ['hwid'];
 
 	protected $_msgType = MessageType::HELLO;
+	public $hwid = -1;
+
+	public function getHwId(): string {
+		return $this->hwid;
+	}
+}
+
+class GoodbyeMessage extends AbstractMessage {
+
+	protected static $_fields = ['hwid'];
+
+	protected $_msgType = MessageType::GOODBYE;
+	public $hwid = -1;
+
+	public function getHwId(): string {
+		return $this->hwid;
+	}
+}
+
+class RequestDeviceStateMessage extends AbstractMessage {
+
+	protected static $_fields = ['hwid'];
+
+	protected $_msgType = MessageType::REQUEST_DEVICE_STATE;
 	protected $hwid = -1;
 
 	public function getHwId(): string {
 		return $this->hwid;
 	}
+}
+
+class DeviceState extends AbstractMessage {
+
+	protected static $_fields = [''];
+
+	protected $_msgType = MessageType::DEVICE_STATE;
+
+	public $deviceId;
+	public $state;
+	public $online;
+	public $recentEvents;
+
+
 }

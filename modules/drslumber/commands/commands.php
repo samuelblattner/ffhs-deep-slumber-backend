@@ -7,6 +7,9 @@ $CMD_DISPLAY_GLOBAL_STATSTICS = 'display-global-statistics';
 global $CMD_DISPLAY_USER_STATSTICS;
 $CMD_DISPLAY_USER_STATSTICS = 'display-user-statistics';
 
+global $CMD_DISPLAY_USER_LAST_SLEEP_PROFILE;
+$CMD_DISPLAY_USER_LAST_SLEEP_PROFILE = 'display-user-last-sleep-profile';
+
 global $CMD_RATE_LAST_WAKE_UP;
 $CMD_RATE_LAST_WAKE_UP = 'rate-last-wakeup';
 

@@ -1,6 +1,8 @@
 <?php
 
 include_once __DIR__.'/../../generated/SleepCycleQuery.php';
+include_once __DIR__.'/serializers/SleepCycleSerializer.php';
+include_once __DIR__.'/serializers/SleepEventSerializer.php';
 
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Propel;
@@ -30,6 +32,15 @@ class DrSlumber {
 		return 0;
 	}
 
+	private static function __getLastSleepCycle(User $user=null): SleepCycle {
+		$devices = $user->getDevices();
+		if ($user !== null && sizeof($devices) > 0) {
+			$cycle = SleepCycleQuery::create()->filterByDeviceHwid($devices[0]->getHwid())->orderById(Criteria::DESC)->findOne();
+		}
+		return $cycle;
+	}
+
+
 	public static function getGlobalStatistics() {
 
 		return array(
@@ -45,4 +56,16 @@ class DrSlumber {
 		);
 	}
 
+	public static function getUserLastSleepProfile($user) {
+
+		$sleepCycle = DrSlumber::__getLastSleepCycle($user);
+		$serializedSleepCycle = new SleepCycleSerializer(null, $sleepCycle);
+		$events = SleepEventQuery::create()->filterBySleepCycle($sleepCycle)->orderByTimestamp(Criteria::ASC);
+		$serializedEvents = new SleepEventSerializer(null, $events, True);
+
+		return array(
+			'events' => $serializedEvents->serialize(),
+			'sleep_cycle' => $serializedSleepCycle->serialize()
+		);
+	}
 }

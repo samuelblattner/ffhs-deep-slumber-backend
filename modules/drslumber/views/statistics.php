@@ -29,3 +29,18 @@ class UserSleepStatisticsView extends AbstractAPIView {
 
 	}
 }
+
+class UserLastSleepProfileView extends AbstractAPIView {
+
+	public function get(Request $request): AbstractResponse {
+
+		global $CMD_DISPLAY_USER_LAST_SLEEP_PROFILE;
+		$res = Executor::getInstance()->execute($CMD_DISPLAY_USER_LAST_SLEEP_PROFILE, $this->getExecutionContext($request));
+
+		if ($res->getResultMeta()->getState() == ResultState::INSUFFICIENT_PERMISSIONS) {
+			return new UnauthorizedResponse();
+		}
+
+		return new JSONResponse(200, $res->getResultObject());
+	}
+}
