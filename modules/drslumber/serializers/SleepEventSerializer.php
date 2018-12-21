@@ -12,7 +12,7 @@ class SleepEventSerializer extends AbstractModelSerializer {
 
 	protected $MODEL_FIELDS = [
 		[ 'fieldname' => 'id', 'getter' => 'getId' , 'setter' => 'NOSET'],
-		[ 'fieldname' => 'timestamp', 'getter' => 'getTimestamp', 'setter' => 'NOSET'],
+		[ 'fieldname' => 'timestamp', 'getter' => 'getTimestampISO8601', 'setter' => 'NOSET'],
 		[ 'fieldname' => 'type', 'getter' => 'getType', 'setter' => 'NOSET'],
 		[ 'fieldname' => 'value', 'getter' => 'getValue', 'setter' => 'NOSET'],
 	];

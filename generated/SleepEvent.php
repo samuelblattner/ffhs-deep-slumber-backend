@@ -14,5 +14,9 @@ use Base\SleepEvent as BaseSleepEvent;
  */
 class SleepEvent extends BaseSleepEvent
 {
+	public function getTimestampISO8601()
+	{
+		return $this->getTimestamp('Y-m-d\TH:i:sP');
+	}
 
 }
