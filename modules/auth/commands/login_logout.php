@@ -14,9 +14,13 @@ global $CMD_LOGIN_USER;
 global $CMD_REGISTER_USER;
 
 
+/**
+ * COMMAND: Execute User-Login and create session.
+ */
 Executor::getInstance()->registerCommand(
 	$CMD_LOGIN_USER,
 	new class extends AbstractCommand {
+
 		protected static $minPermissions = array();
 
 		public function execute(?ifcontext $context): AbstractResult {
@@ -27,6 +31,7 @@ Executor::getInstance()->registerCommand(
 				$context->getValue('password')
 			);
 
+			// If authentication is not successful, return error
 			if ($user === null) {
 				return new UserResult(
 					ResultState::OPERATION_ERROR,
@@ -35,11 +40,14 @@ Executor::getInstance()->registerCommand(
 				);
 			}
 
+			// If authentication is successful, create a new session and store
+			// the session_id on the user instance for later reference
 			session_start();
 			$user->setSession(session_id());
 			$user->save();
 			$_SESSION['user'] = $user;
 
+			// Return user as exeuction result
 			return new UserResult(
 				ResultState::EXECUTED,
 				null,
@@ -50,13 +58,16 @@ Executor::getInstance()->registerCommand(
 );
 
 
+/**
+ * COMMAND: Execute User-Logout and destroy session.
+ */
 Executor::getInstance()->registerCommand(
 	$CMD_LOGOUT_USER,
 	new class extends AbstractCommand {
+
 		protected static $minPermissions = array();
 
 		public function execute(?ifcontext $context): AbstractResult {
-
 
 			$guard = new Guard();
 			$user = $guard->getSessionUser();
@@ -71,19 +82,25 @@ Executor::getInstance()->registerCommand(
 );
 
 
+/**
+ * COMMAND: Execute user registration.
+ */
 Executor::getInstance()->registerCommand(
 	$CMD_REGISTER_USER,
 	new class extends AbstractCommand {
+
 		protected static $minPermissions = array();
 
 		public function execute(?ifcontext $context): AbstractResult {
 
+			// Create user instance
 			$user = new User();
 			$user->setusername($context->getValue('username'));
 			$user->save();
 			$guard = new Guard();
 			$guard->setPassword($user, $context->getValue('password'));
 
+			// Set default permissions
 			$guard->addPermissions(
 				$user,
 				PermissionQuery::create()->filterByKey(
@@ -101,11 +118,13 @@ Executor::getInstance()->registerCommand(
 				)
 			);
 
+			// Create a new session and store with the user
 			session_start();
 			$user->setSession(session_id());
 			$user->save();
 			$_SESSION['user'] = $user;
 
+			// Return user as execution result.
 			return new UserResult(
 				ResultState::EXECUTED,
 				null,

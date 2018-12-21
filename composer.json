@@ -1,12 +1,12 @@
 {
-  "name": "vendor_name/package_name",
-  "description": "description_text",
+  "name": "samworks/deep-slumber",
+  "description": "FFHS ",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
     {
-      "name": "author's name",
-      "email": "email@example.com"
+      "name": "Samuel Blattner",
+      "email": "samuel.blattner@students.ffhs.ch"
     }
   ],
   "require": {

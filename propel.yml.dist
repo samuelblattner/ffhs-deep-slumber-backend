@@ -9,10 +9,10 @@
 propel:
     paths:
         # The directory where Propel expects to find your `schema.xml` file.
-        schemaDir: /Users/samuelblattner/projects/ffhs/WebE/Semesterprojekt/project/backend/config/database
+        schemaDir: config/database
 
         # The directory where Propel should output generated object model classes.
-        phpDir: /Users/samuelblattner/projects/ffhs/WebE/Semesterprojekt/project/backend/generated
+        phpDir: generated
 
 #   database:
 #       connections:

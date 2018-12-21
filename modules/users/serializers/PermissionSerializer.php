@@ -26,15 +26,6 @@ class PermissionSerializer extends AbstractModelSerializer {
 	}
 
 	public function asContext($ctx=null): ?ExecutionContext {
-
-		if (!$this->is_valid()) {
-			return null;
-		}
-
-		if ($ctx == null) {
-			$ctx = new ExecutionContext();
-		}
-		$ctx->setValue('password', $this->instance ? $this->instance->getPassword() : $this->raw_data[UserSerializer::$FIELD_PASSWORD]);
-		return $ctx;
+		return new ExecutionContext();
 	}
 }

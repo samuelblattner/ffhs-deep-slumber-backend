@@ -3,6 +3,12 @@
 include_once __DIR__.'/value_objects/result.php';
 
 
+/**
+ * Class Executor
+ *
+ * Autorization and execution instance. Accepts command keys and execution contexts and
+ * executes commands, provided the required permissions of the current user are met.
+ */
 class Executor {
 
 	private static $instance = null;
@@ -20,11 +26,14 @@ class Executor {
 	}
 
 	/**
-	 * Registers a new command for a given key.
+	 * Register a command. This method will be called by other components that
+	 * need to register commands (anonymous methods) that can be executed under specific permissions.
+	 *
 	 * @param string $key
 	 * @param AbstractCommand $command
 	 *
 	 * @return bool
+	 * @throws \Propel\Runtime\Exception\PropelException
 	 */
 	public function registerCommand(string $key, AbstractCommand $command): bool {
 
@@ -43,7 +52,7 @@ class Executor {
 	/**
 	 * Executes a command.
 	 * @param string $key
-	 * @param AbstractContext $context
+	 * @param ExecutionContext $context
 	 *
 	 * @return OperationResult
 	 */
@@ -60,6 +69,9 @@ class Executor {
 		$minPermissions = $commandClass::getMinPermissions();
 		if (sizeof($minPermissions) > 0) {
 			$guard = new Guard();
+
+			// Check if the requester possesses the required permissions to execute the command.
+			// Deny and return otherwise.
 			if (!$guard->hasPerms($context->getRequester(), $minPermissions)) {
 				return new OperationResult(
 					ResultState::INSUFFICIENT_PERMISSIONS
@@ -69,6 +81,5 @@ class Executor {
 
 		$command = new $commandClass();
 		return $command->execute($context);
-
 	}
 }
