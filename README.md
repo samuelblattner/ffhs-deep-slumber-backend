@@ -1,7 +1,7 @@
 # Deep Slumber Backend
 
 ## Contents
-This repository contains the backend implementation for my semester term project at FFHS (see complete Project: ...).
+This repository contains the backend implementation for my semester term project at FFHS (see complete Project: [https://github.com/samuelblattner/ffhs-deep-slumber](https://github.com/samuelblattner/ffhs-deep-slumber)).
 
 ## Installation
 
@@ -58,7 +58,7 @@ $ vendor/bin/propel sql:insert
 ```
 
 ### Install Frontend
-Head over to the frontend repository and install the frontend in order for the backend to be usable via browser.
+Head over to the [frontend](https://github.com/samuelblattner/ffhs-deep-slumber-frontend) repository and install the frontend in order for the backend to be usable via browser.
 
 ### Point backend to frontend
 If you want to serve the frontend via php, you need to point the backend to where to frontend is.
