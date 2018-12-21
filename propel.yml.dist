@@ -14,12 +14,12 @@ propel:
         # The directory where Propel should output generated object model classes.
         phpDir: generated
 
-#   database:
-#       connections:
-#           default:
-#               adapter: pgsql
-#               dsn: pgsql:host=localhost;port=5432;dbname=samworks_ffhs_deepslumber_backend
-#               user: samworks_ffhs_deepslumber_backend
-#               password:
-#               settings:
-#                   charset: utf8
+    database:
+        connections:
+            default:
+                adapter: pgsql
+                dsn: pgsql:host=localhost;port=5432;dbname=samworks_ffhs_deepslumber_backend
+                user: samworks_ffhs_deepslumber_backend
+                password: thepassword
+                settings:
+                    charset: utf8

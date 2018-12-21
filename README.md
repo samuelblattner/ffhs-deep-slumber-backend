@@ -57,6 +57,13 @@ Finally, create the actual database schema with:
 $ vendor/bin/propel sql:insert
 ```
 
+#### Re-dump autoload
+In order for the newly generated ORM stubs to be loaded by the system, you need to re-generate the autoload script via:
+
+```bash
+$ php composer.phar dump-autoload
+```
+
 ### Install Frontend
 Head over to the [frontend](https://github.com/samuelblattner/ffhs-deep-slumber-frontend) repository and install the frontend in order for the backend to be usable via browser.
 

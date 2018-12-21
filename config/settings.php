@@ -15,7 +15,7 @@ $SETTINGS['main-routes-file'] = __DIR__.'/routes.php';
 $SETTINGS['frontend-entry-path'] = __DIR__.'/../../frontend/assets/dev/index.html';
 $SETTINGS['assets-pattern'] = '/^\/assets\//';
 $SETTINGS['assets-path'] = __DIR__.'/../../frontend/assets/';
-$SETTINGS['debug'] = false;
+$SETTINGS['debug'] = true;
 
 if (file_exists(__DIR__.'/custom-settings.php')) {
 	require_once(__DIR__.'/custom-settings.php');
