@@ -73,4 +73,4 @@ For easy and convenient development, however, you can just use the built-in php 
 php -S localhost:8080 index.php
 ```
 
-If you open your browser at [localhost:8080](localhost:8080) you should see the public dashboard view.
+If you open your browser at [localhost:8080](http://localhost:8080) you should see the public dashboard view.
