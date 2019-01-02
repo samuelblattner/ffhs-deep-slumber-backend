@@ -44,31 +44,46 @@ class MissionControl implements MessageComponentInterface {
 
 	public static function pushMessage( $deviceId, AbstractMessage $payload ) {
 		$factory = new Factory( MissionControl::getMissionControlEventLoop() );
-
 		$factory->createClient( 'redis://127.0.0.1:6379' )->then( function ( Client $client ) use ( $payload ) {
+
 			$client->publish( 'websocket_out', $payload->serialize() );
 			$client->end();
 
 		}, function ( $error ) {
 			echo $error;
 		} );
-
-		MissionControl::getMissionControlEventLoop()->run();
 	}
 
 	private function __handleHelloMessage( HelloMessage $helloMsg, ConnectionInterface $fromSender ) {
 		try {
-			$device                                                              = DeviceQuery::create()->filterByHwid( $helloMsg->getHwId() )->findOneOrCreate()->save();
+			$device                                                              = DeviceQuery::create()->filterByHwid( $helloMsg->getHwId() )->findOneOrCreate();
+			$device->save();
 			$this->connectionDeviceMap[ $this->clients->getHash( $fromSender ) ] = $helloMsg->getHwId();
 			$this->deviceConnectionMap[ $helloMsg->getHwId() ]                   = $fromSender;
-		} catch ( PropelException $e ) {
 
+			$alarm = \AlarmQuery::create()->findOneByDeviceHwid($device->getHwid());
+			$settings = new Settings();
+			$settings->deviceId = $device->getHwid();
+
+			$settings->earliestWakeTime = $alarm->getEarliest();
+			$settings->latestWakeTime = $alarm->getLatest();
+
+			echo 'is ok';
+			MissionControl::pushMessage(
+				$device->getHwid(),
+				$settings
+			);
+			echo 'after';
+
+		} catch ( PropelException $e ) {
+			echo 'FAILED YOU MOFO';
 		}
 
-
-
+		echo 'mofo';
 		if ($this->deviceStateListeners[$helloMsg->getHwId()]) {
+			echo 'nigg';
 			foreach ( $this->deviceStateListeners[$helloMsg->getHwId() ] as $client ) {
+				echo 'jep OUT STATE';
 				$client->send( $helloMsg->serialize() );
 			}
 		}
@@ -233,9 +248,7 @@ class MissionControl implements MessageComponentInterface {
 	}
 
 	public function onMessage( ConnectionInterface $from, $msg ) {
-
 		$this->__handleMessage( $from, $msg );
-
 	}
 
 	public function onClose( ConnectionInterface $conn ) {
@@ -256,8 +269,6 @@ class MissionControl implements MessageComponentInterface {
 				}
 			}
 		}
-
-
 	}
 
 	public function onError( ConnectionInterface $conn, \Exception $e ) {

@@ -118,6 +118,10 @@ class RequestDeviceStateMessage extends AbstractMessage {
 	protected $_msgType = MessageType::REQUEST_DEVICE_STATE;
 	protected $hwid = -1;
 
+	public function __construct($hwid=null) {
+		$this->hwid = $hwid;
+	}
+
 	public function getHwId(): string {
 		return $this->hwid;
 	}
