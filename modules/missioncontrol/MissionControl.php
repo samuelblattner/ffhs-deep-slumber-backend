@@ -68,22 +68,19 @@ class MissionControl implements MessageComponentInterface {
 			$settings->earliestWakeTime = $alarm->getEarliest();
 			$settings->latestWakeTime = $alarm->getLatest();
 
-			echo 'is ok';
 			MissionControl::pushMessage(
 				$device->getHwid(),
 				$settings
 			);
-			echo 'after';
 
 		} catch ( PropelException $e ) {
-			echo 'FAILED YOU MOFO';
 		}
 
-		echo 'mofo';
+
 		if ($this->deviceStateListeners[$helloMsg->getHwId()]) {
-			echo 'nigg';
+
 			foreach ( $this->deviceStateListeners[$helloMsg->getHwId() ] as $client ) {
-				echo 'jep OUT STATE';
+
 				$client->send( $helloMsg->serialize() );
 			}
 		}
