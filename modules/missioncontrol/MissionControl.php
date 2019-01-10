@@ -65,8 +65,10 @@ class MissionControl implements MessageComponentInterface {
 			$settings = new Settings();
 			$settings->deviceId = $device->getHwid();
 
-			$settings->earliestWakeTime = $alarm->getEarliest();
-			$settings->latestWakeTime = $alarm->getLatest();
+			if ($alarm != null) {
+				$settings->earliestWakeTime = $alarm->getEarliest();
+				$settings->latestWakeTime   = $alarm->getLatest();
+			}
 
 			MissionControl::pushMessage(
 				$device->getHwid(),
