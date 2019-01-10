@@ -43,7 +43,9 @@ class MissionControl implements MessageComponentInterface {
 	}
 
 	public static function pushMessage( $deviceId, AbstractMessage $payload ) {
-		$factory = new Factory( MissionControl::getMissionControlEventLoop() );
+
+		$theloop =  React\EventLoop\Factory::create();
+		$factory = new Factory( $theloop);
 		$factory->createClient( 'redis://127.0.0.1:6379' )->then( function ( Client $client ) use ( $payload ) {
 
 			$client->publish( 'websocket_out', $payload->serialize() );
@@ -52,6 +54,9 @@ class MissionControl implements MessageComponentInterface {
 		}, function ( $error ) {
 			echo $error;
 		} );
+
+		$theloop->run();
+
 	}
 
 	private function __handleHelloMessage( HelloMessage $helloMsg, ConnectionInterface $fromSender ) {
